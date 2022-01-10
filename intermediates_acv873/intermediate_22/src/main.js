@@ -1,8 +1,8 @@
 // External libraries
 import * as THREE from '../../../lib/three.js-r134/build/three.module.js';
-import * as TWEEN from '../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 import * as CONTROLS from '../../../lib/three.js-r134/examples/jsm/controls/OrbitControls.js';
 import * as DAT from '../../../lib/dat.gui-0.7.7/build/dat.gui.module.js';
+import * as TWEEN from '../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 
 // Own modules
 import Television from './objects/Television.js';
@@ -78,7 +78,6 @@ function main() {
     TWEEN.update();
 
     window.renderer.render(window.scene, window.camera);
-
     requestAnimationFrame(mainLoop);
   }
 

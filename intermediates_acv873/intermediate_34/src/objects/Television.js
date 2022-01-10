@@ -1,8 +1,9 @@
 import * as THREE from '../../../../lib/three.js-r134/build/three.module.js';
-import * as TWEEN from '../../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 import CSG from '../../../../lib/three-csg-2020/dist/three-csg.js';
+import * as TWEEN from '../../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 
 import {Animation, AnimationType, AnimationAxis} from '../animation/Animation.js';
+import {GridShader} from '../shaders/GridShader.js';
 
 export default class Television extends THREE.Group {
 
@@ -17,28 +18,66 @@ export default class Television extends THREE.Group {
 
     const corpusMaterial = new THREE.MeshPhongMaterial({
       color: 0xff4000,
+      flatShading: true,
+      specular: 0x111111,
+      shininess: 100
+    });
+
+    const backMaterial = new THREE.MeshPhongMaterial( {
+      color: 0xff4000,
       flatShading: true
     });
+    backMaterial.bumpMap = new THREE.TextureLoader().load('src/images/backVentilation.png');
+    backMaterial.bumpScale = 1.0;
 
     const frontMaterial = new THREE.MeshPhongMaterial({
-      color: 0x00000,
-      flatShading: true
-    });
-
-    const screenMaterial = new THREE.MeshPhongMaterial({
-      color: 0xffffff,
-      flatShading: true
-    });
-
-    const panelMaterial = new THREE.MeshPhongMaterial({
       color: 0x111111,
       flatShading: true
     });
+    frontMaterial.bumpMap = new THREE.TextureLoader().load('src/images/frontFrame.png');
+    frontMaterial.bumpScale = 1.0;
 
-    const metalMaterial = new THREE.MeshPhongMaterial({
-      color: 0xe7e7e7,
+    const screenMaterial = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      flatShading: true,
+      transparent: true,
+      opacity: 0.2
+    });
+
+    const panelMaterial = new THREE.MeshPhongMaterial({
+      color: 0x191919,
       flatShading: true
     });
+
+    const panelMaterialTextured = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      flatShading: true
+    });
+    panelMaterialTextured.map = new THREE.TextureLoader().load('src/images/panelTexture.png');
+    const panelMaterialArray = [panelMaterial, panelMaterial, panelMaterial, panelMaterial, panelMaterialTextured, panelMaterial];
+
+    const speakerMaterial = new THREE.ShaderMaterial({
+      vertexShader: GridShader.vertexShader,
+      fragmentShader: GridShader.fragmentShader,
+      uniforms: {
+        slots: {type: 'f', value: 11.0},
+        color: {type: 'c', value: new THREE.Color(0x000000)}
+      }
+    });
+
+
+    const metalMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe7e7e7,
+      flatShading: false,
+      roughness: 0.0,
+      metalness: 0.3
+    });
+
+    const envMap = new THREE.TextureLoader().load('../../lib/three.js-r134/examples/textures/2294472375_24a3b8ef46_o.jpg');
+    envMap.mapping = THREE.EquirectangularReflectionMapping;
+    envMap.encoding = THREE.sRGBEncoding;
+    metalMaterial.envMap = envMap;
+    metalMaterial.envMapIntensity = 10.0;
 
     // Corpus
     // ------
@@ -102,6 +141,13 @@ export default class Television extends THREE.Group {
     const hollowCorpusGeometry = CSG.BufferGeometry(hollowCorpusGeometryCSG);
     const corpus = new THREE.Mesh(hollowCorpusGeometry, corpusMaterial);
     corpus.castShadow = true;
+
+    const corpusBackGeometry = new THREE.PlaneGeometry(33.6, 24);
+    const corpusBack = new THREE.Mesh(corpusBackGeometry, backMaterial);
+    corpusBack.rotation.set(0, THREE.MathUtils.degToRad(180), 0);
+    corpusBack.position.set(0, -1, -18);
+    this.add(corpusBack);
+
     this.add(corpus);
 
     // Front
@@ -115,15 +161,22 @@ export default class Television extends THREE.Group {
     // ------
     const screenGeometry = new THREE.BoxGeometry(26, 22, 1);
     const screen = new THREE.Mesh(screenGeometry, screenMaterial);
-    screen.position.set(-5.7, 2, 16);
+    screen.position.set(-5.7, 2, 15.5);
     this.add(screen);
 
     // Panel
     // -----
     const panelGeometry = new THREE.BoxGeometry(8, 22, 1);
-    const panel = new THREE.Mesh(panelGeometry, panelMaterial);
+    const panel = new THREE.Mesh(panelGeometry, panelMaterialArray);
     panel.position.set(17.5, 2, 15.5);
     this.add(panel);
+
+    // Speaker
+    // -------
+    const speakerGeometry = new THREE.PlaneGeometry(6, 10);
+    const speaker = new THREE.Mesh(speakerGeometry, speakerMaterial);
+    speaker.position.set(0, -5, 0.6);
+    panel.add(speaker);
 
     // Power and Volume Knob
     // ---------------------
@@ -180,6 +233,7 @@ export default class Television extends THREE.Group {
     antennaSpline.tension = 0.0;
     const extrudeSettings = {
       steps: 200,
+      curveSegments: 100,
       bevelEnabled: false,
       extrudePath: antennaSpline
     };
@@ -189,19 +243,30 @@ export default class Television extends THREE.Group {
     antenna.rotation.set(THREE.MathUtils.degToRad(80), 0, 0);
     antenna.castShadow = true;
     antenna.name = 'antenna';
-    let antennaIsUp = false;
-    const antennaTweenUp = new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
-        antenna.rotation.x - THREE.MathUtils.degToRad(80),
-        antenna.rotation.y,
-        antenna.rotation.z), 2000)
-        .easing(TWEEN.Easing.Quadratic.Out);
-    const antennaTweenDown = new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
-        antenna.rotation.x,
-        antenna.rotation.y,
-        antenna.rotation.z), 2000)
-        .easing(TWEEN.Easing.Quadratic.Out);
-    antenna.userData = [antennaIsUp, antennaTweenUp, antennaTweenDown];
-
     this.add(antenna);
+
+    // Antenna Animation
+    // -----------------
+    antenna.userData = {
+      up: false,
+      upTween: new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
+          antenna.rotation.x - THREE.MathUtils.degToRad(80),
+          antenna.rotation.y,
+          antenna.rotation.z), 2000)
+          .easing(TWEEN.Easing.Quadratic.Out),
+      downTween: new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
+          antenna.rotation.x,
+          antenna.rotation.y,
+          antenna.rotation.z), 2000)
+          .easing(TWEEN.Easing.Quadratic.Out)
+    };
   }
+
+  addPhysics() {
+    const boundingBox = new THREE.Box3().setFromObject(this);
+    const boundingBoxSize = new THREE.Vector3();
+    boundingBox.getSize(boundingBoxSize);
+    window.physics.addBox(this, 3, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, 0, 0, true);
+  }
+
 }

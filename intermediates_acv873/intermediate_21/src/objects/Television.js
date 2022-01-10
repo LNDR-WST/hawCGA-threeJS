@@ -1,6 +1,6 @@
 import * as THREE from '../../../../lib/three.js-r134/build/three.module.js';
-import * as TWEEN from '../../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 import CSG from '../../../../lib/three-csg-2020/dist/three-csg.js';
+import * as TWEEN from '../../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 
 import {Animation, AnimationType, AnimationAxis} from '../animation/Animation.js';
 
@@ -17,7 +17,9 @@ export default class Television extends THREE.Group {
 
     const corpusMaterial = new THREE.MeshPhongMaterial({
       color: 0xff4000,
-      flatShading: true
+      flatShading: true,
+      specular: 0x111111,
+      shininess: 100
     });
 
     const frontMaterial = new THREE.MeshPhongMaterial({
@@ -27,7 +29,9 @@ export default class Television extends THREE.Group {
 
     const screenMaterial = new THREE.MeshPhongMaterial({
       color: 0xffffff,
-      flatShading: true
+      flatShading: true,
+      transparent: true,
+      opacity: 0.2
     });
 
     const panelMaterial = new THREE.MeshPhongMaterial({
@@ -35,9 +39,11 @@ export default class Television extends THREE.Group {
       flatShading: true
     });
 
-    const metalMaterial = new THREE.MeshPhongMaterial({
+    const metalMaterial = new THREE.MeshStandardMaterial({
       color: 0xe7e7e7,
-      flatShading: true
+      flatShading: true,
+      roughness: 0.0,
+      metalness: 0.3
     });
 
     // Corpus
@@ -180,6 +186,7 @@ export default class Television extends THREE.Group {
     antennaSpline.tension = 0.0;
     const extrudeSettings = {
       steps: 200,
+      curveSegments: 100,
       bevelEnabled: false,
       extrudePath: antennaSpline
     };
@@ -189,19 +196,22 @@ export default class Television extends THREE.Group {
     antenna.rotation.set(THREE.MathUtils.degToRad(80), 0, 0);
     antenna.castShadow = true;
     antenna.name = 'antenna';
-    let antennaIsUp = false;
-    const antennaTweenUp = new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
-        antenna.rotation.x - THREE.MathUtils.degToRad(80),
-        antenna.rotation.y,
-        antenna.rotation.z), 2000)
-        .easing(TWEEN.Easing.Quadratic.Out);
-    const antennaTweenDown = new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
-        antenna.rotation.x,
-        antenna.rotation.y,
-        antenna.rotation.z), 2000)
-        .easing(TWEEN.Easing.Quadratic.Out);
-    antenna.userData = [antennaIsUp, antennaTweenUp, antennaTweenDown];
-
     this.add(antenna);
+
+    // Antenna Animation
+    // -----------------
+    antenna.userData = {
+      up: false,
+      upTween: new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
+          antenna.rotation.x - THREE.MathUtils.degToRad(80),
+          antenna.rotation.y,
+          antenna.rotation.z), 2000)
+          .easing(TWEEN.Easing.Quadratic.Out),
+      downTween: new TWEEN.Tween(antenna.rotation).to(new THREE.Vector3(
+          antenna.rotation.x,
+          antenna.rotation.y,
+          antenna.rotation.z), 2000)
+          .easing(TWEEN.Easing.Quadratic.Out)
+    };
   }
 }
