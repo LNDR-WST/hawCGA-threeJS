@@ -421,6 +421,237 @@ export default class Turntable extends THREE.Group {
         const armPlate2 = new THREE.Mesh(armPlate2Geometry, corpusMaterial);
         basePlate.add(armPlate2);
 
+        const armPlate3Base = new THREE.CylinderGeometry(2.3, 2.3, 0.3, 32).translate(0, 2.105 + 0.3, 0);
+        const armPlate3Cut = new THREE.BoxGeometry(1, 0.3, 3).translate(2.3, 2.105 + 0.3, 0);
+        const armPlate3CSG = CSG.subtract([armPlate3Base, armPlate3Cut]);
+        const armPlate3Geometry = CSG.BufferGeometry(armPlate3CSG);
+        const armPlate3 = new THREE.Mesh(armPlate3Geometry, corpusMaterial);
+        basePlate.add(armPlate3);
+
+        const armPlate4Base = new THREE.CylinderGeometry(1.3, 1.3, 0.25, 32).translate(0, 2.405 + 0.25, 0);
+        const armPlate4Cut = new THREE.BoxGeometry(1, 0.25, 2).translate(1.5, 2.405 + 0.25, 0);
+        const armPlate4CSG = CSG.subtract([armPlate4Base, armPlate4Cut]);
+        const armPlate4Geometry = CSG.BufferGeometry(armPlate4CSG);
+        const armPlate4 = new THREE.Mesh(armPlate4Geometry, corpusMaterial);
+        basePlate.add(armPlate4);
+
+        // Horizontal arm joint
+        // --------------------
+        const horizontalJointGeometry = new THREE.BufferGeometry();
+        horizontalJointGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+            // vertices z+
+            -2.9, 1.5, 0.375,       // 0
+            -2.9, -1.5, 0.375,      // 1
+            2.9, -1.5, 0.375,       // 2
+            2.9, 1.5, 0.375,        // 3
+
+            -2.55, 1.2, 0.375,      // 4
+            -2.55, -1.2, 0.375,     // 5
+            2.5, -1.2, 0.375,       // 6
+            2.5, 1.2, 0.375,        // 7
+
+            -0.425, 2.2, 0.375,     // 8
+            -0.425, -2.2, 0.375,    // 9
+            0.425, -2.2, 0.375,     // 10
+            0.425, 2.2, 0.375,      // 11
+
+            -0.375, 1.55, 0.375,    // 12
+            -0.375, -1.55, 0.375,   // 13
+            0.375, -1.55, 0.375,    // 14
+            0.375, 1.55, 0.375,     // 15
+
+            // vertices z-
+            -2.9, 1.5, -0.375,       // 16
+            -2.9, -1.5, -0.375,      // 17
+            2.9, -1.5, -0.375,       // 18
+            2.9, 1.5, -0.375,        // 19
+
+            -2.55, 1.2, -0.375,      // 20
+            -2.55, -1.2, -0.375,     // 21
+            2.5, -1.2, -0.375,       // 22
+            2.5, 1.2, -0.375,        // 23
+
+            -0.425, 2.2, -0.375,     // 24
+            -0.425, -2.2, -0.375,    // 25
+            0.425, -2.2, -0.375,     // 26
+            0.425, 2.2, -0.375,      // 27
+
+            -0.375, 1.55, -0.375,    // 28
+            -0.375, -1.55, -0.375,   // 29
+            0.375, -1.55, -0.375,    // 30
+            0.375, 1.55, -0.375,     // 31
+
+        ]), 3));
+        horizontalJointGeometry.setIndex([
+            // Faces front
+            0, 4, 8,
+            4, 12, 8,
+            4, 0, 5,
+            0, 1, 5,
+            5, 1, 13,
+            13, 1, 9,
+            13, 9, 14,
+            14, 9, 10,
+            14, 10, 6,
+            6, 10, 2,
+            7, 6, 2,
+            2, 3, 7,
+            7, 3, 15,
+            15, 3, 11,
+            11, 12, 15,
+            11, 8, 12,
+
+            // Faces back (Indizes front + 16 + reverse)
+            24, 20, 16,
+            24, 28, 20,
+            21, 16, 20,
+            21, 17, 16,
+            29, 17, 21,
+            25, 17, 29,
+            30, 25, 29,
+            26, 25, 30,
+            22, 26, 30,
+            18, 26, 22,
+            18, 22, 23,
+            23, 19, 18,
+            31, 19, 23,
+            27, 19, 31,
+            31, 28, 27,
+            28, 24, 27,
+
+            // Faces between inner
+            31, 12, 28,
+            15, 12, 31,
+            20, 12, 4,
+            20, 28, 12,
+            21, 20, 5,
+            4, 5, 20,
+            21, 5, 13,
+            13, 29, 21,
+            29, 13, 14,
+            14, 30, 29,
+            30, 14, 6,
+            6, 22, 30,
+            23, 22, 6,
+            6, 7, 23,
+            7, 15, 31,
+            31, 23, 7,
+
+            // Faces between outer (Index inner - 4 + reversed)
+            24, 8, 27,
+            27, 8, 11,
+            0, 8, 16,
+            8, 24, 16,
+            1, 16, 17,
+            16, 1, 0,
+            9, 1, 17,
+            17, 25, 9,
+            10, 9, 25,
+            25, 26, 10,
+            2, 10, 26,
+            26, 18, 2,
+            2, 18, 19,
+            19, 3, 2,
+            27, 11, 3,
+            3, 19, 27
+        ]);
+        horizontalJointGeometry.computeVertexNormals();
+        const horizontalJoint = new THREE.Mesh(horizontalJointGeometry, corpusMaterial);
+        horizontalJoint.position.set(21.2, 16.655 + 2.2, -12.4);
+        horizontalJoint.name = 'horizontalJoint'; // TODO: needs to be rotated later
+        this.add(horizontalJoint);
+
+
+        const blackLockingGeometry1 = new THREE.BufferGeometry();
+        blackLockingGeometry1.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+            // vertices z+
+            0, 5.15, 0.5,       // 0
+            0, 1.5, 0.5,        // 1
+            0, 0, 0.75,         // 2
+            2.3, 0, 0.75,       // 3
+            2.3, 0.36, 0.75,    // 4
+            1.15, 1.5, 0.5,     // 5
+            1.15, 5.15, 0.5,    // 6
+            4.6, 5.75, 0.5,     // 7
+            5.3, 5.75, 0.5,     // 8
+            5.3, 6.2, 0.5,      // 9
+            1.05, 6.2, 0.5,     // 10
+            0.3, 5.85, 0.5,     // 11
+
+            // vertices z-
+            0, 5.15, -0.5,       // 12
+            0, 1.5, -0.5,        // 13
+            0, 0, -0.75,         // 14
+            2.3, 0, -0.75,       // 15
+            2.3, 0.36, -0.75,    // 16
+            1.15, 1.5, -0.5,     // 17
+            1.15, 5.15, -0.5,    // 18
+            4.6, 5.75, -0.5,     // 19
+            5.3, 5.75, -0.5,     // 20
+            5.3, 6.2, -0.5,      // 21
+            1.05, 6.2, -0.5,     // 22
+            0.3, 5.85, -0.5,     // 23
+
+
+        ]), 3));
+        blackLockingGeometry1.setIndex([
+            // front
+            0, 1, 5,
+            0, 5, 6,
+            1, 2, 5,
+            5, 2, 3,
+            5, 3, 4,
+            0, 6, 11,
+            11, 6, 10,
+            10, 6, 7,
+            10, 7, 9,
+            9, 7, 8,
+
+            // back
+            17, 13, 12,
+            18, 17, 12,
+            17, 14, 13,
+            15, 14, 17,
+            16, 15, 17,
+            23, 18, 12,
+            22, 18, 23,
+            19, 18, 22,
+            21, 19, 22,
+            20, 19, 21,
+
+            // sides
+            0, 12, 13,
+            0, 13, 1,
+            1, 13, 14,
+            1, 14, 2,
+            2, 14, 15,
+            2, 15, 3,
+            3, 15, 16,
+            3, 16, 4,
+            4, 16, 5,
+            5, 16, 17,
+            5, 17, 6,
+            6, 17, 18,
+            18, 19, 6,
+            6, 19, 7,
+            7, 19, 8,
+            8, 19, 20,
+            8, 20, 21,
+            21, 9, 8,
+            21, 22, 9,
+            9, 22, 10,
+            22, 11, 10,
+            22, 23, 11,
+            23, 0, 11,
+            23, 12, 0
+        ]);
+        blackLockingGeometry1.computeVertexNormals();
+        const blackLockingGeometry2 = new THREE.CylinderGeometry(0.3, 0.3, 0.45, 16).translate(4.95, 5.75-0.225, 0);
+        const blackLockingCSG = CSG.union([blackLockingGeometry1, blackLockingGeometry2]);
+        const blackLockingGeometry = CSG.BufferGeometry(blackLockingCSG);
+        const blackLocking = new THREE.Mesh(blackLockingGeometry, corpusMaterial);
+        blackLocking.position.set(16.3, 16.655 -0.91, -12.4);
+        this.add(blackLocking); // TODO: rotate
 
 
 
