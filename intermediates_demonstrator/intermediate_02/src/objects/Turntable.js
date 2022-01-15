@@ -38,13 +38,7 @@ export default class Turntable extends THREE.Group {
             wireframe: false
         });
 
-        const tabletopMaterialTextured = new THREE.MeshStandardMaterial({
-            color: 0xcccccc,
-            flatShading: false,
-            roughness: 0.4,
-            metalness: 1,
-            wireframe: false
-        });
+        const tabletopMaterialTextured = tabletopMaterial.clone();
         const tabletopTexture = new THREE.TextureLoader().load('src/images/tabletop_texture.png');
         tabletopMaterialTextured.map = tabletopTexture;
 
@@ -52,7 +46,8 @@ export default class Turntable extends THREE.Group {
             color: 0xcccccc,
             flatShading: false,
             roughness: 0.2,
-            metalness: 1
+            metalness: 1,
+            wireframe: false
         });
 
         const envMap = new THREE.TextureLoader().load('../../lib/three.js-r134/examples/textures/2294472375_24a3b8ef46_o.jpg');
@@ -61,6 +56,13 @@ export default class Turntable extends THREE.Group {
         envMap.encoding = THREE.sRGBEncoding;
         metalMaterial.envMap = envMap;
         metalMaterial.envMapIntensity = 10.0;
+
+        const rotaryRingMaterial = metalMaterial.clone();
+        rotaryRingMaterial.map = new THREE.TextureLoader().load('src/images/test.jpg');
+        rotaryRingMaterial.bumpmap = new THREE.TextureLoader().load('src/images/test2.jpg');
+
+        const vinylMaterial = metalMaterial.clone();
+        vinylMaterial.map = new THREE.TextureLoader().load('src/images/vinyl.jpg');
 
         const emissivePowerMaterial = new THREE.MeshStandardMaterial({
             color: 0x2f0000,
@@ -147,99 +149,8 @@ export default class Turntable extends THREE.Group {
         tabletop.position.set(0, 14.3875, 0); // Oberes Face bei z = 15.075
         this.add(tabletop);
 
-        /*tabletopGeometry.setAttribute('uv', {
-            name: "",
-            needsUpdate: false,
-            onUploadCallback: function () {},
-            array: new Float32Array([
-                0.5, 1,
-                1, 1,
-                0.5, 0.5,
-                1, 0.5]),
-            itemSize: 2,
-            count: 4,
-            normalized: false,
-            usage: 35044,
-            updateRange: { offset: 0, count: -1 },
-            version: 0
-        });*/
-
-
-
         setVertexUvs(tabletopGeometry, 64, 46, ['x','z'], 0, 16.5, 0, 7);
 
-
-        function calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY) {
-            width += stretchX;
-            height += stretchY;
-            let axis1, axis2;
-            // define modulo results based on axes; 0 = x, 1 = y, 2 = z
-            if (axes[0] === 'x') {
-                axis1 = 0;
-                if (axes[1] === 'y') {axis2 = 1;} else {axis2 = 2;}
-            } else {
-                axis1 = 1;
-                axis2 = 2;
-            }
-            const positionInfo = geometry.getAttribute('position');
-            const vertices = positionInfo.array;
-            let x, y;
-            const uvs = [];
-            for (let i = 0; i < vertices.length; i++) {
-                if (i % 3 === axis1) {                                  // x-coordinate
-                    x = vertices[i];
-                    if (Math.abs(x + offsetX) > width/2){        // count in offset X
-                        x = offsetX/Math.abs(offsetX) * width/2;    // if out of bounds, point = bounds
-                    } else {
-                        x += offsetX;
-                    }
-                    uvs.push((width/2 + x)/width); // calculate (x) -> u
-                } else if (i % 3 === axis2) { // z-coordinate
-                    y = vertices[i];
-                    if (Math.abs(y + offsetY) > width/2){ // count in offset Y
-                        y = offsetY/Math.abs(offsetY) * width/2; // if out of bounds, point = bounds
-                    } else {
-                        y += offsetY;
-                    }
-                    uvs.push((height/2 + y)/height); // calculate (z) -> v
-                }
-            }
-            return uvs;
-        }
-
-        function setVertexUvs(geometry, width, height, axes = ['x', 'z'], stretchX = 0, stretchY = 0, offsetX = 0, offsetY = 0, callback = null) {
-            if (callback === null) {
-                callback = function () {};
-            }
-            const positionInfo = geometry.getAttribute('position');
-            geometry.setAttribute('uv', {
-                name: geometry.name,
-                needsUpdate: false,
-                onUploadCallback: callback,
-                array: new Float32Array(calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY)),
-                itemSize: 2,
-                count: positionInfo.count,
-                normalized: positionInfo.normalized,
-                usage: positionInfo.usage,
-                updateRange: positionInfo.updateRange,
-                version: positionInfo.version
-            });
-        }
-
-        /*for (let i = 0; i < vertices.length; i++) {
-            if (i % 3 === 0) {
-
-                console.log(1);
-            } else if (i % 3 === 1) {
-                console.log(2);
-            }
-        }*/
-
-        /*const tabletopTexturePlaneGeo = new THREE.PlaneGeometry(22, 6.8, 1)
-            .rotateX(THREE.MathUtils.degToRad(-90))
-            .translate(32 - 11, 1.375/2 + 0.001, 49/2 - 6.8/2);
-        const tabletopTexturePlane = new THREE.Mesh(tabletopTexturePlaneGeo, tabletopMaterialTextured);
-        tabletop.add(tabletopTexturePlane);*/
 
         // Feet
         // ----
@@ -299,7 +210,7 @@ export default class Turntable extends THREE.Group {
         // -----------
 
         const rotaryDiscGeometry = new THREE.CylinderGeometry(21.3,23.4, 1.82, 64);
-        const rotaryDisc = new THREE.Mesh(rotaryDiscGeometry, metalMaterial);
+        const rotaryDisc = new THREE.Mesh(rotaryDiscGeometry, [rotaryRingMaterial, vinylMaterial]);
         rotaryDisc.name = 'rotaryDisk';
 
             // Plattenzentrierung
@@ -944,18 +855,98 @@ export default class Turntable extends THREE.Group {
             needleHeadEnd.add(needle);
             needleHead.add(needleHeadEnd);
 
+        /**
+         * calculateUvs
+         * -----------------------
+         * Calculates UV-coordinates for rectangular texture mapping.
+         * It is based on the geometry's information for its position.
+         *
+         * Requirement: pivotpoint of rectangular object is in the middle of the geometry.
+         *
+         * @param geometry THREE geometry for which UVs need to be calculated
+         * @param width width of geometry (first axis; e.g. 'x')
+         * @param height height of geometry (second axis; e.g. 'z')
+         * @param axes Array of two Strings that contain the axes of the plane
+         * @param stretchX stretch texture in width
+         * @param stretchY stretch texture in height
+         * @param offsetX move texture in width (ends will be cut off)
+         * @param offsetY move texture in height (ends will be cut off)
+         * @returns {*[]} an Array of UV-coordinates; every two values result in (u, v)
+         */
+        function calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY) {
+            width += stretchX;
+            height += stretchY;
+            let axis1, axis2;
+            // define modulo results based on axes; 0 = x, 1 = y, 2 = z
+            if (axes[0] === 'x') {
+                axis1 = 0;
+                if (axes[1] === 'y') {axis2 = 1;} else {axis2 = 2;}
+            } else {
+                axis1 = 1;
+                axis2 = 2;
+            }
+            const positionInfo = geometry.getAttribute('position');
+            const vertices = positionInfo.array;
+            let x, y;
+            const uvs = [];
+            for (let i = 0; i < vertices.length; i++) {
+                if (i % 3 === axis1) {                                  // x-coordinate
+                    x = vertices[i];
+                    if (Math.abs(x + offsetX) > width/2){        // count in offset X
+                        x = offsetX/Math.abs(offsetX) * width/2;    // if out of bounds, point = bounds
+                    } else {
+                        x += offsetX;
+                    }
+                    uvs.push((width/2 + x)/width); // calculate (x) -> u
+                } else if (i % 3 === axis2) { // z-coordinate
+                    y = vertices[i];
+                    if (Math.abs(y + offsetY) > width/2){ // count in offset Y
+                        y = offsetY/Math.abs(offsetY) * width/2; // if out of bounds, point = bounds
+                    } else {
+                        y += offsetY;
+                    }
+                    uvs.push((height/2 + y)/height); // calculate (z) -> v
+                }
+            }
+            return uvs;
+        }
 
-
-
-
-
-
-
-
-
-
-
-
+        /**
+         * setVertexUvs
+         * ------------
+         * Uses function 'calculateUvs' for setting the uv-attributes of a geometry.
+         * Copies information from position-attributes.
+         *
+         * @param geometry THREE geometry that needs its UVs to be set.
+         * @param width width of geometry (first axis; e.g. 'x')
+         * @param height height of geometry (second axis; e.g. 'z')
+         * @param axes Array of two Strings that contain the axes of the plane
+         * @param stretchX stretch texture in width
+         * @param stretchY stretch texture in height
+         * @param offsetX move texture in width (ends will be cut off)
+         * @param offsetY move texture in height (ends will be cut off)
+         * @param callback from manual: callback function that is executed after the Renderer has transferred the attribute array data to the GPU
+         *
+         * Does not return anything.
+         */
+        function setVertexUvs(geometry, width, height, axes = ['x', 'z'], stretchX = 0, stretchY = 0, offsetX = 0, offsetY = 0, callback = null) {
+            if (callback === null) {
+                callback = function () {};
+            }
+            const positionInfo = geometry.getAttribute('position');
+            geometry.setAttribute('uv', {
+                name: geometry.name,
+                needsUpdate: false,
+                onUploadCallback: callback,
+                array: new Float32Array(calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY)),
+                itemSize: 2,
+                count: positionInfo.count,
+                normalized: positionInfo.normalized,
+                usage: positionInfo.usage,
+                updateRange: positionInfo.updateRange,
+                version: positionInfo.version
+            });
+        }
 
 
 
@@ -963,14 +954,21 @@ export default class Turntable extends THREE.Group {
 
     }
 
-    // https://stackoverflow.com/a/42866733 Autor: TheJim01 (answered Mar 17 '17 at 20:40; edited Aug 5 '19 at 16:36)
-    // Abruf: 13.01.2022 13:30 Uhr
-    // --------------------------------------------------------------------------------------------------------------
-    // obj - your object (THREE.Object3D or derived)
-    // point - the point of rotation (THREE.Vector3)
-    // axis - the axis of rotation (normalized THREE.Vector3)
-    // theta - radian value of rotation
-    // pointIsWorld - boolean indicating the point is in world coordinates (default = false)
+    /**
+     * rotateAboutPoint
+     * ----------------
+     * @Author TheJim01
+     * https://stackoverflow.com/a/42866733 (answered Mar 17 '17 at 20:40; edited Aug 5 '19 at 16:36)
+     * _Abruf: 13.01.2022 13:30 Uhr_
+     *
+     * Rotates an object about a given point for a given angle.
+     *
+     * @param obj your object (THREE.Object3D or derived)
+     * @param point the point of rotation (THREE.Vector3)
+     * @param axis the axis of rotation (normalized THREE.Vector3)
+     * @param theta radian value of rotation
+     * @param pointIsWorld boolean indicating the point is in world coordinates (default = false)
+     */
     rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
         pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
 
@@ -991,11 +989,5 @@ export default class Turntable extends THREE.Group {
 
 
 }
-// Quick temporary edit in Browser:
-//window.scene.traverse(function(child) {
-//   if (child.name === 'powerKnob') {
-//     child.position.set(0, child.position.y, -0.7);
-//   }
-// });
 
 // Translate on Geometry moves origin; Translate (position.set) on Object moves position (not origin)

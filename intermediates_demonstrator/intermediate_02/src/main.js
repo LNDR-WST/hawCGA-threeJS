@@ -50,7 +50,7 @@ function main() {
     // ------------------------------------------------------------------------
     // -------------------------MEASUREMENT-SCRIPT-----------------------------
     // ------------------------------------------------------------------------
-    let scene = window.scene;
+    /*let scene = window.scene;
     let camera = window.camera;
     let canvas = window.renderer.domElement;
     document.body.appendChild(canvas);
@@ -144,7 +144,7 @@ function main() {
             renderer.setSize(width, height, false);
         }
         return needResize;
-    }
+    }*/
     // ------------------------------------------------------------------------
     // -------------------------MEASUREMENT-SCRIPT-----------------------------
     // ------------------------------------------------------------------------
