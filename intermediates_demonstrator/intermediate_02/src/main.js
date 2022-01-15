@@ -55,9 +55,9 @@ function main() {
     let canvas = window.renderer.domElement;
     document.body.appendChild(canvas);
 
-    let light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.setScalar(10);
-    scene.add(light);
+    //let light = new THREE.DirectionalLight(0xffffff, 0.5);
+    //light.position.setScalar(10);
+    //scene.add(light);
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
     document.addEventListener("mousedown", onDocumentMouseDown, false);
 
@@ -180,7 +180,7 @@ function main() {
     pointLight.position.set(0, 220, -300);
     window.scene.add(pointLight);
 
-    let spotLight = new THREE.SpotLight(0xffffff, 0.2, 0, THREE.MathUtils.degToRad(45), 1, 2);
+    let spotLight = new THREE.SpotLight(0xddddff, 0.2, 0, THREE.MathUtils.degToRad(45), 1, 2);
     spotLight.position.set(-200, 200, -200);
     spotLight.target = turntableFromFile; // TODO: Set target
     spotLight.castShadow = true;
@@ -204,12 +204,68 @@ function main() {
     spotLight4.position.set(200, 200, 200);
     window.scene.add(spotLight4);
 
+    const spotLight5 = spotLight.clone();
+    spotLight5.position.set(0, 200, 200);
+    window.scene.add(spotLight5);
+
+    const spotLight6 = spotLight.clone();
+    spotLight6.position.set(0, 200, -200);
+    window.scene.add(spotLight6);
+
+    const spotLight7 = spotLight.clone();
+    spotLight7.position.set(-200, 200, 0);
+    window.scene.add(spotLight7);
+
+    const spotLight8 = spotLight.clone();
+    spotLight8.position.set(200, 200, 0);
+    window.scene.add(spotLight8);
+
 
     const gui1 = new DAT.GUI();
     gui1.add(turntable.position, 'x', -200, 200).step(0.1);
     gui1.add(turntable.position, 'y', -200, 200).step(0.1);
     gui1.add(turntable.position, 'z', -200, 200).step(0.1);
 
+
+
+    // Testarea
+    // ----------------------------------------------
+    /*const planeGeo = new THREE.PlaneGeometry(20, 20, 1);
+    const planeTexture = new THREE.TextureLoader().load('src/images/tabletop_texture.png');
+    const planeTextureMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        flatShading: false,
+        roughness: 0.4,
+        metalness: 1,
+        wireframe: false
+    });
+    planeTextureMaterial.map = planeTexture;
+    planeGeo.setAttribute('uv', {
+        name: "",
+        needsUpdate: false,
+        onUploadCallback: function () {},
+        array: new Float32Array([
+            0.5, 1,
+            1, 1,
+            0.5, 0.5,
+            1, 0.5]),
+        itemSize: 2,
+        count: 4,
+        normalized: false,
+        usage: 35044,
+        updateRange: { offset: 0, count: -1 },
+        version: 0
+    });
+    const plane = new THREE.Mesh(planeGeo, planeTextureMaterial); //.rotateX(THREE.MathUtils.degToRad(-90));
+    plane.position.set(0, 30, 0);
+    scene.add(plane);
+
+    console.log(planeGeo);*/
+
+    //for (let attribute in tabletopGeometry.attributes.position) {
+    //    console.log(attribute);
+    //}
+    // ----------------------------------------------
 
     // Functions
     // ---

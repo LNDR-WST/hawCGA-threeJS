@@ -34,8 +34,19 @@ export default class Turntable extends THREE.Group {
             color: 0xcccccc,
             flatShading: false,
             roughness: 0.4,
-            metalness: 1
+            metalness: 1,
+            wireframe: false
         });
+
+        const tabletopMaterialTextured = new THREE.MeshStandardMaterial({
+            color: 0xcccccc,
+            flatShading: false,
+            roughness: 0.4,
+            metalness: 1,
+            wireframe: false
+        });
+        const tabletopTexture = new THREE.TextureLoader().load('src/images/tabletop_texture.png');
+        tabletopMaterialTextured.map = tabletopTexture;
 
         const metalMaterial = new THREE.MeshStandardMaterial({
             color: 0xcccccc,
@@ -44,12 +55,26 @@ export default class Turntable extends THREE.Group {
             metalness: 1
         });
 
+        const envMap = new THREE.TextureLoader().load('../../lib/three.js-r134/examples/textures/2294472375_24a3b8ef46_o.jpg');
+        //const envMap = new THREE.TextureLoader().load('src/images/wooden_lounge_env.jpg'); // TODO: Decide for HDRI Envmap
+        envMap.mapping = THREE.EquirectangularReflectionMapping;
+        envMap.encoding = THREE.sRGBEncoding;
+        metalMaterial.envMap = envMap;
+        metalMaterial.envMapIntensity = 10.0;
+
         const emissivePowerMaterial = new THREE.MeshStandardMaterial({
             color: 0x2f0000,
             flatShading: false,
             roughness: 0.4,
             metalness: 0,
             emissive: 0x910000 // TODO: turn emissive to 0x000000 when 'power off'
+        });
+
+        const redPlasticMaterial = new THREE.MeshPhongMaterial({
+            color: 0x8b0000,
+            flatShading: false,
+            specular: 0x111111,
+            shininess: 35
         });
 
 
@@ -118,10 +143,103 @@ export default class Turntable extends THREE.Group {
         const tabletopArmCutout = new THREE.CylinderGeometry(8.2, 8.2,1.3,32).translate(21.2, 1.375/2-0.5, -12.4);
         const tabletopCSG = CSG.subtract([tabletopBase, tabletopSwitchCutout, tabletopArmCutout]);
         const tabletopGeometry = CSG.BufferGeometry(tabletopCSG);
-
-        const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterial);
+        const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterialTextured);
         tabletop.position.set(0, 14.3875, 0); // Oberes Face bei z = 15.075
         this.add(tabletop);
+
+        /*tabletopGeometry.setAttribute('uv', {
+            name: "",
+            needsUpdate: false,
+            onUploadCallback: function () {},
+            array: new Float32Array([
+                0.5, 1,
+                1, 1,
+                0.5, 0.5,
+                1, 0.5]),
+            itemSize: 2,
+            count: 4,
+            normalized: false,
+            usage: 35044,
+            updateRange: { offset: 0, count: -1 },
+            version: 0
+        });*/
+
+
+
+        setVertexUvs(tabletopGeometry, 64, 46, ['x','z'], 0, 16.5, 0, 7);
+
+
+        function calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY) {
+            width += stretchX;
+            height += stretchY;
+            let axis1, axis2;
+            // define modulo results based on axes; 0 = x, 1 = y, 2 = z
+            if (axes[0] === 'x') {
+                axis1 = 0;
+                if (axes[1] === 'y') {axis2 = 1;} else {axis2 = 2;}
+            } else {
+                axis1 = 1;
+                axis2 = 2;
+            }
+            const positionInfo = geometry.getAttribute('position');
+            const vertices = positionInfo.array;
+            let x, y;
+            const uvs = [];
+            for (let i = 0; i < vertices.length; i++) {
+                if (i % 3 === axis1) {                                  // x-coordinate
+                    x = vertices[i];
+                    if (Math.abs(x + offsetX) > width/2){        // count in offset X
+                        x = offsetX/Math.abs(offsetX) * width/2;    // if out of bounds, point = bounds
+                    } else {
+                        x += offsetX;
+                    }
+                    uvs.push((width/2 + x)/width); // calculate (x) -> u
+                } else if (i % 3 === axis2) { // z-coordinate
+                    y = vertices[i];
+                    if (Math.abs(y + offsetY) > width/2){ // count in offset Y
+                        y = offsetY/Math.abs(offsetY) * width/2; // if out of bounds, point = bounds
+                    } else {
+                        y += offsetY;
+                    }
+                    uvs.push((height/2 + y)/height); // calculate (z) -> v
+                }
+            }
+            return uvs;
+        }
+
+        function setVertexUvs(geometry, width, height, axes = ['x', 'z'], stretchX = 0, stretchY = 0, offsetX = 0, offsetY = 0, callback = null) {
+            if (callback === null) {
+                callback = function () {};
+            }
+            const positionInfo = geometry.getAttribute('position');
+            geometry.setAttribute('uv', {
+                name: geometry.name,
+                needsUpdate: false,
+                onUploadCallback: callback,
+                array: new Float32Array(calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY)),
+                itemSize: 2,
+                count: positionInfo.count,
+                normalized: positionInfo.normalized,
+                usage: positionInfo.usage,
+                updateRange: positionInfo.updateRange,
+                version: positionInfo.version
+            });
+        }
+
+        /*for (let i = 0; i < vertices.length; i++) {
+            if (i % 3 === 0) {
+
+                console.log(1);
+            } else if (i % 3 === 1) {
+                console.log(2);
+            }
+        }*/
+
+        /*const tabletopTexturePlaneGeo = new THREE.PlaneGeometry(22, 6.8, 1)
+            .rotateX(THREE.MathUtils.degToRad(-90))
+            .translate(32 - 11, 1.375/2 + 0.001, 49/2 - 6.8/2);
+        const tabletopTexturePlane = new THREE.Mesh(tabletopTexturePlaneGeo, tabletopMaterialTextured);
+        tabletop.add(tabletopTexturePlane);*/
 
         // Feet
         // ----
@@ -349,8 +467,6 @@ export default class Turntable extends THREE.Group {
         // Nadelbeleuchtung
         // ----------------
 
-        const temporaryGroup = new THREE.Group();
-
         // Plate Base
         const plateRectangle = new THREE.BoxGeometry(2.4, 0.25, 1.5);
         const plateCylinder = new THREE.CylinderGeometry(0.75, 0.75, 0.25, 16).translate(-1.2, 0, 0);
@@ -365,18 +481,19 @@ export default class Turntable extends THREE.Group {
         const needleLightingPlate = new THREE.Mesh(needleLightingPlateGeometry, metalMaterial);
         needleLightingPlate.position.set(6, 15.125, 22.2);
 
-        // Light Cylinder
-        const needleLightGeometry = new THREE.CylinderGeometry(0.65, 0.65, 3.6, 16);
-        const needleLight = new THREE.Mesh(needleLightGeometry, metalMaterial);
-        needleLight.position.set(-1.2, 0.125 + 1.8, 0);
-        needleLight.name = 'needleLight';       // TODO: Needs to go down, when pushed; up, when turned on via button to the right
-        needleLightingPlate.add(needleLight);   // child[0]
+            // Light Cylinder
+            const needleLightGeometry = new THREE.CylinderGeometry(0.65, 0.65, 3.6, 16);
+            const needleLight = new THREE.Mesh(needleLightGeometry, metalMaterial);
+            needleLight.position.set(-1.2, 0.125 + 1.8, 0);
+            needleLight.name = 'needleLight';       // TODO: Needs to go down, when pushed; up, when turned on via button to the right
+            needleLightingPlate.add(needleLight);   // child[0]
 
-        const needleLightOnButtonGeometry = new THREE.CylinderGeometry(0.4, 0.4, 1, 16);
-        const needleLightOnButton = new THREE.Mesh(needleLightOnButtonGeometry, metalMaterial);
-        needleLightOnButton.position.set(1.2, -0.25, 0);
-        needleLight.name = 'needleLightOnButton';   // TODO: Turns on and lifts up needleLight
-        needleLightingPlate.add(needleLightOnButton);   // child[1]
+            // Light on button
+            const needleLightOnButtonGeometry = new THREE.CylinderGeometry(0.4, 0.4, 1, 16);
+            const needleLightOnButton = new THREE.Mesh(needleLightOnButtonGeometry, metalMaterial);
+            needleLightOnButton.position.set(1.2, -0.25, 0);
+            needleLight.name = 'needleLightOnButton';   // TODO: Turns on and lifts up needleLight
+            needleLightingPlate.add(needleLightOnButton);   // child[1]
 
         this.add(needleLightingPlate);
 
@@ -409,31 +526,31 @@ export default class Turntable extends THREE.Group {
         basePlate.position.set(21.2, 15.075 - 1.2, -12.4);
         this.add(basePlate);
 
-        const armPlate1Geometry = new THREE.CylinderGeometry(5, 5, 0.725, 32).translate(0, 1.2 + 0.725/2, 0);
-        const armPlate1 = new THREE.Mesh(armPlate1Geometry, corpusMaterial);
-        basePlate.add(armPlate1);
+            const armPlate1Geometry = new THREE.CylinderGeometry(5, 5, 0.725, 32).translate(0, 1.2 + 0.725/2, 0);
+            const armPlate1 = new THREE.Mesh(armPlate1Geometry, corpusMaterial);
+            basePlate.add(armPlate1);
 
-        const armPlate2base = new THREE.CylinderGeometry(2.6, 2.6, 0.36, 32).translate(0, 2.105, 0);
-        const armPlate2extension = new THREE.BoxGeometry(4.8, 0.36, 3).translate(3, 2.105, 0);
-        const armPlate2cylinder = new THREE.CylinderGeometry(1.5, 1.5, 0.72, 16).translate(5.4, 2.285, 0);
-        const armPlate2CSG = CSG.union([armPlate2base, armPlate2extension, armPlate2cylinder]);
-        const armPlate2Geometry = CSG.BufferGeometry(armPlate2CSG);
-        const armPlate2 = new THREE.Mesh(armPlate2Geometry, corpusMaterial);
-        basePlate.add(armPlate2);
+            const armPlate2base = new THREE.CylinderGeometry(2.6, 2.6, 0.36, 32).translate(0, 2.105, 0);
+            const armPlate2extension = new THREE.BoxGeometry(4.8, 0.36, 3).translate(3, 2.105, 0);
+            const armPlate2cylinder = new THREE.CylinderGeometry(1.5, 1.5, 0.72, 16).translate(5.4, 2.285, 0);
+            const armPlate2CSG = CSG.union([armPlate2base, armPlate2extension, armPlate2cylinder]);
+            const armPlate2Geometry = CSG.BufferGeometry(armPlate2CSG);
+            const armPlate2 = new THREE.Mesh(armPlate2Geometry, corpusMaterial);
+            basePlate.add(armPlate2);
 
-        const armPlate3Base = new THREE.CylinderGeometry(2.3, 2.3, 0.3, 32).translate(0, 2.105 + 0.3, 0);
-        const armPlate3Cut = new THREE.BoxGeometry(1, 0.3, 3).translate(2.3, 2.105 + 0.3, 0);
-        const armPlate3CSG = CSG.subtract([armPlate3Base, armPlate3Cut]);
-        const armPlate3Geometry = CSG.BufferGeometry(armPlate3CSG);
-        const armPlate3 = new THREE.Mesh(armPlate3Geometry, corpusMaterial);
-        basePlate.add(armPlate3);
+            const armPlate3Base = new THREE.CylinderGeometry(2.3, 2.3, 0.3, 32).translate(0, 2.105 + 0.3, 0);
+            const armPlate3Cut = new THREE.BoxGeometry(1, 0.3, 3).translate(2.3, 2.105 + 0.3, 0);
+            const armPlate3CSG = CSG.subtract([armPlate3Base, armPlate3Cut]);
+            const armPlate3Geometry = CSG.BufferGeometry(armPlate3CSG);
+            const armPlate3 = new THREE.Mesh(armPlate3Geometry, corpusMaterial);
+            basePlate.add(armPlate3);
 
-        const armPlate4Base = new THREE.CylinderGeometry(1.3, 1.3, 0.25, 32).translate(0, 2.405 + 0.25, 0);
-        const armPlate4Cut = new THREE.BoxGeometry(1, 0.25, 2).translate(1.5, 2.405 + 0.25, 0);
-        const armPlate4CSG = CSG.subtract([armPlate4Base, armPlate4Cut]);
-        const armPlate4Geometry = CSG.BufferGeometry(armPlate4CSG);
-        const armPlate4 = new THREE.Mesh(armPlate4Geometry, corpusMaterial);
-        basePlate.add(armPlate4);
+            const armPlate4Base = new THREE.CylinderGeometry(1.3, 1.3, 0.25, 32).translate(0, 2.405 + 0.25, 0);
+            const armPlate4Cut = new THREE.BoxGeometry(1, 0.25, 2).translate(1.5, 2.405 + 0.25, 0);
+            const armPlate4CSG = CSG.subtract([armPlate4Base, armPlate4Cut]);
+            const armPlate4Geometry = CSG.BufferGeometry(armPlate4CSG);
+            const armPlate4 = new THREE.Mesh(armPlate4Geometry, corpusMaterial);
+            basePlate.add(armPlate4);
 
         // Horizontal arm joint
         // --------------------
@@ -447,8 +564,8 @@ export default class Turntable extends THREE.Group {
 
             -2.55, 1.2, 0.375,      // 4
             -2.55, -1.2, 0.375,     // 5
-            2.5, -1.2, 0.375,       // 6
-            2.5, 1.2, 0.375,        // 7
+            2.55, -1.2, 0.375,       // 6
+            2.55, 1.2, 0.375,        // 7
 
             -0.425, 2.2, 0.375,     // 8
             -0.425, -2.2, 0.375,    // 9
@@ -468,8 +585,8 @@ export default class Turntable extends THREE.Group {
 
             -2.55, 1.2, -0.375,      // 20
             -2.55, -1.2, -0.375,     // 21
-            2.5, -1.2, -0.375,       // 22
-            2.5, 1.2, -0.375,        // 23
+            2.55, -1.2, -0.375,       // 22
+            2.55, 1.2, -0.375,        // 23
 
             -0.425, 2.2, -0.375,     // 24
             -0.425, -2.2, -0.375,    // 25
@@ -558,10 +675,26 @@ export default class Turntable extends THREE.Group {
         horizontalJointGeometry.computeVertexNormals();
         const horizontalJoint = new THREE.Mesh(horizontalJointGeometry, corpusMaterial);
         horizontalJoint.position.set(21.2, 16.655 + 2.2, -12.4);
-        horizontalJoint.name = 'horizontalJoint'; // TODO: needs to be rotated later
+        horizontalJoint.name = 'horizontalJointWithCylinder'; // TODO: needs to be rotated later
         this.add(horizontalJoint);
 
+            // rotation cylinder (vertical rotation)
+            const armRotationGeometry = new THREE.CylinderGeometry(0.8, 0.8, 5.1, 32);
+            const armRotation = new THREE.Mesh(armRotationGeometry, metalMaterial);
+            armRotation.rotateZ(THREE.MathUtils.degToRad(90));
+            //armRotation.position.set(21.2, 18.855, -12.4);
+            horizontalJoint.add(armRotation);
 
+        this.rotateAboutPoint(
+            horizontalJoint,
+            new THREE.Vector3(21.2, 15.075, -12.4),
+            new THREE.Vector3(0, 1, 0),
+            THREE.MathUtils.degToRad(3),
+            false
+        );
+
+        // Black Locking for holding arm in place
+        // --------------------------------------
         const blackLockingGeometry1 = new THREE.BufferGeometry();
         blackLockingGeometry1.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
             // vertices z+
@@ -646,12 +779,181 @@ export default class Turntable extends THREE.Group {
             23, 12, 0
         ]);
         blackLockingGeometry1.computeVertexNormals();
-        const blackLockingGeometry2 = new THREE.CylinderGeometry(0.3, 0.3, 0.45, 16).translate(4.95, 5.75-0.225, 0);
+        const blackLockingGeometry2 = new THREE.CylinderGeometry(0.3, 0.3, 0.45, 16).translate(4.9, 5.75-0.225, 0);
         const blackLockingCSG = CSG.union([blackLockingGeometry1, blackLockingGeometry2]);
         const blackLockingGeometry = CSG.BufferGeometry(blackLockingCSG);
         const blackLocking = new THREE.Mesh(blackLockingGeometry, corpusMaterial);
         blackLocking.position.set(16.3, 16.655 -0.91, -12.4);
-        this.add(blackLocking); // TODO: rotate
+        this.rotateAboutPoint(
+            blackLocking,                                       // Object to rotate
+            new THREE.Vector3(21.2, 15.075, -12.4),    // Pivotpoint for rotation
+            new THREE.Vector3(0, 1, 0),                // Axis for rotation
+            THREE.MathUtils.degToRad(-57.5),            // rotation angle
+            false);                                 // point is local, because object is added to Turntable
+        this.add(blackLocking);
+
+
+        // Arm (Group)
+        // -----------
+
+        const arm = new THREE.Group();
+        arm.position.set(21.2, 18.855, -12.4);
+        arm.name = 'arm';
+        this.add(arm);
+
+        this.rotateAboutPoint(
+            arm,
+            new THREE.Vector3(21.2, 15.075, -12.4),
+            new THREE.Vector3(0, 1, 0),
+            THREE.MathUtils.degToRad(-5),
+            false
+        );
+
+            // various cylinders
+            const armCylinder1Geometry = new THREE.CylinderGeometry(0.85, 0.85, 6.75, 32);
+            const armCylinder1 = new THREE.Mesh(armCylinder1Geometry, metalMaterial);
+            armCylinder1.rotateX(THREE.MathUtils.degToRad(90));
+            arm.add(armCylinder1);
+
+            const armCylinder2Geometry = new THREE.CylinderGeometry(0.6, 0.6, 0.3, 16);
+            const armCylinder2 = new THREE.Mesh(armCylinder2Geometry, metalMaterial);
+            armCylinder2.rotateX(THREE.MathUtils.degToRad(90));
+            armCylinder2.position.set(0, 0, -3.375 - 0.15);
+            arm.add(armCylinder2);
+
+            const armCylinder3Geometry = new THREE.CylinderGeometry(0.85, 0.85, 6.75, 32);
+            const armCylinder3 = new THREE.Mesh(armCylinder3Geometry, metalMaterial);
+            armCylinder3.rotateX(THREE.MathUtils.degToRad(90));
+            armCylinder3.position.set(0, 0, -3.675 - 3.375);
+            arm.add(armCylinder3);
+
+            // arm weight (group)
+            const armWeight = new THREE.Group();
+            arm.add(armWeight);
+            armWeight.position.set(0, 0, -3.675 - 2.2);
+
+                const armCylinder4_1Geometry = new THREE.CylinderGeometry(0.85, 2,0.4, 32)
+                    .rotateX(THREE.MathUtils.degToRad(90));
+                const armCylinder4_2Geometry = new THREE.CylinderGeometry(2, 2,0.4, 32)
+                    .rotateX(THREE.MathUtils.degToRad(90))
+                    .translate(0, 0, -0.4);
+                const armCylinder4CSG = CSG.union([armCylinder4_1Geometry, armCylinder4_2Geometry]);
+                const armCylinder4Geometry = CSG.BufferGeometry(armCylinder4CSG);
+                const armCylinder4 = new THREE.Mesh(armCylinder4Geometry, corpusMaterial);
+                armWeight.add(armCylinder4);
+
+                const armCylinder5Geometry = new THREE.CylinderGeometry(2, 2, 2.5, 32)
+                    .rotateX(THREE.MathUtils.degToRad(90))
+                    .translate(0,0,-0.6 - 2.5/2);
+                const armCylinder5 = new THREE.Mesh(armCylinder5Geometry, metalMaterial);
+                armWeight.add(armCylinder5);
+
+                const armCylinder6Geometry = new THREE.CylinderGeometry(2, 2,0.4, 32)
+                    .rotateX(THREE.MathUtils.degToRad(90))
+                    .translate(0,0,-0.6 - 2.5 - 0.2);
+                const armCylinder6 = new THREE.Mesh(armCylinder6Geometry, corpusMaterial);
+                armWeight.add(armCylinder6);
+
+            // arm curve
+            const armProfile = new THREE.Shape().absellipse(0, 0, 0.6, 0.6,
+                0, THREE.MathUtils.degToRad(360));
+            const armCurveSpline = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(1.6, 0, 0),
+                new THREE.Vector3(13.6, 0, -2.6),
+                new THREE.Vector3(22, 0, -0.5)
+            ]);
+            armCurveSpline.curveType = 'centripetal';
+            const extrudeSettings = {
+                steps: 200,
+                curveSegments: 100,
+                extrudePath: armCurveSpline
+            };
+            const armCurveGeometry = new THREE.ExtrudeGeometry(armProfile, extrudeSettings).rotateY(THREE.MathUtils.degToRad(-90));
+            const armCurve = new THREE.Mesh(armCurveGeometry, metalMaterial);
+            armCurve.position.set(0, 0, 6.75/2);
+            arm.add(armCurve);
+
+            // needle head (group)
+            const needleHead = new THREE.Group();
+            needleHead.position.set(19.23, 16.655 + 2.2, 13.5);
+            needleHead.rotateY(THREE.MathUtils.degToRad(-22));
+            this.add(needleHead);
+
+            const needleHeadCyl1Geo = new THREE.CylinderGeometry(0.7, 0.7, 1.9, 32);
+            const needleHeadCyl1 = new THREE.Mesh(needleHeadCyl1Geo, metalMaterial);
+            needleHeadCyl1.rotateX(THREE.MathUtils.degToRad(90));
+            needleHeadCyl1.position.set(0, 0, 0);
+            needleHead.add(needleHeadCyl1);
+
+            const needleHeadCyl2Geo = new THREE.CylinderGeometry(0.85, 0.85, 0.5, 32);
+            const needleHeadCyl2 = new THREE.Mesh(needleHeadCyl2Geo, metalMaterial);
+            needleHeadCyl2.rotateX(THREE.MathUtils.degToRad(90));
+            needleHeadCyl2.position.set(0, 0, -0.3);
+            needleHead.add(needleHeadCyl2);
+
+            const needleHeadCyl3Geo = new THREE.CylinderGeometry(0.6, 0.6, 0.4, 32);
+            const needleHeadCyl3 = new THREE.Mesh(needleHeadCyl3Geo, metalMaterial);
+            needleHeadCyl3.rotateX(THREE.MathUtils.degToRad(90));
+            needleHeadCyl3.position.set(0, 0, 0.95 + 0.2);
+            needleHead.add(needleHeadCyl3);
+
+            const needleHeadCyl4Geo = new THREE.CylinderGeometry(0.6, 0.6, 2, 32);
+            const needleHeadCyl4 = new THREE.Mesh(needleHeadCyl4Geo, redPlasticMaterial);
+            needleHeadCyl4.rotateX(THREE.MathUtils.degToRad(90));
+            needleHeadCyl4.position.set(0, 0, 1.35 + 1);
+            needleHead.add(needleHeadCyl4);
+
+            const needleHeadCyl5Geo = new THREE.CylinderGeometry(0.85, 0.85, 0.75, 32);
+            const needleHeadCyl5 = new THREE.Mesh(needleHeadCyl5Geo, redPlasticMaterial);
+            needleHeadCyl5.rotateX(THREE.MathUtils.degToRad(90));
+            needleHeadCyl5.position.set(0, 0, 1.8);
+            needleHead.add(needleHeadCyl5);
+
+            const needleGrabGeo1 = new THREE.BoxGeometry(1.2, 0.05, 0.5)
+                .translate(1.8, 0, 1.8)
+                .rotateZ(THREE.MathUtils.degToRad(30));
+            const needleGrabGeo2 = new THREE.BoxGeometry(1, 0.05, 0.5)
+                .translate(2.555, 1.195, 1.8);
+            const needleGrabCSG = CSG.union([needleGrabGeo1, needleGrabGeo2]);
+            const needleGrabGeometry = CSG.BufferGeometry(needleGrabCSG);
+            const needleGrab = new THREE.Mesh(needleGrabGeometry, redPlasticMaterial);
+            needleGrab.position.set(-0.5, 0, 0);
+            needleHead.add(needleGrab);
+
+            const needleHeadEndBaseGeo = new THREE.CylinderGeometry(0.4, 0.6, 6, 32)
+                .rotateX(THREE.MathUtils.degToRad(90))
+                .translate(0, 0, 3.35 + 3);
+            const rectEndTopGeo = new THREE.BoxGeometry(7, 0.35, 1)
+                .rotateZ(THREE.MathUtils.degToRad(-2))
+                .rotateY(THREE.MathUtils.degToRad(90))
+                .translate(0, -0.35, 7);
+            const rectEndBottomGeo = new THREE.BoxGeometry(7, 0.35, 1)
+                .rotateZ(THREE.MathUtils.degToRad(2))
+                .rotateY(THREE.MathUtils.degToRad(90))
+                .translate(0, 0.35, 7);
+            const rectNeedleCutout = new THREE.BoxGeometry(0.4, 0.4, 0.4).translate(0, 0, 9.2);
+            const needleHeadCSG = CSG.subtract([needleHeadEndBaseGeo, rectEndTopGeo, rectEndBottomGeo, rectNeedleCutout]);
+            const needleHeadEndGeo = CSG.BufferGeometry(needleHeadCSG);
+            const needleHeadEnd = new THREE.Mesh(needleHeadEndGeo, redPlasticMaterial);
+
+            const needleGeometry = new THREE.CylinderGeometry(0, 0.025, 0.4, 16)
+                .rotateX(THREE.MathUtils.degToRad(105))
+                .translate(0, -0.1, 9.2);
+            const needle = new THREE.Mesh(needleGeometry, metalMaterial);
+            needleHeadEnd.add(needle);
+            needleHead.add(needleHeadEnd);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -661,6 +963,31 @@ export default class Turntable extends THREE.Group {
 
     }
 
+    // https://stackoverflow.com/a/42866733 Autor: TheJim01 (answered Mar 17 '17 at 20:40; edited Aug 5 '19 at 16:36)
+    // Abruf: 13.01.2022 13:30 Uhr
+    // --------------------------------------------------------------------------------------------------------------
+    // obj - your object (THREE.Object3D or derived)
+    // point - the point of rotation (THREE.Vector3)
+    // axis - the axis of rotation (normalized THREE.Vector3)
+    // theta - radian value of rotation
+    // pointIsWorld - boolean indicating the point is in world coordinates (default = false)
+    rotateAboutPoint(obj, point, axis, theta, pointIsWorld){
+        pointIsWorld = (pointIsWorld === undefined)? false : pointIsWorld;
+
+        if(pointIsWorld){
+            obj.parent.localToWorld(obj.position); // compensate for world coordinate
+        }
+
+        obj.position.sub(point); // remove the offset
+        obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+        obj.position.add(point); // re-add the offset
+
+        if(pointIsWorld){
+            obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+        }
+
+        obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+    }
 
 
 }
@@ -670,3 +997,5 @@ export default class Turntable extends THREE.Group {
 //     child.position.set(0, child.position.y, -0.7);
 //   }
 // });
+
+// Translate on Geometry moves origin; Translate (position.set) on Object moves position (not origin)
