@@ -6,6 +6,8 @@ import * as TWEEN from '../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 
 // Eventfunction import
 import {updateAspectRatio} from './eventfunctions/updateAspectRatio.js';
+import {calculateMousePosition} from './eventfunctions/calculateMousePosition.js';
+import {executeRaycast} from './eventfunctions/executeRaycast.js';
 
 // Module import
 import Floor from './objects/Floor.js';
@@ -169,10 +171,6 @@ function main() {
     turntable.position.set(15, 0, 0);
     window.scene.add(turntable);
 
-
-    //let ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    //window.scene.add(ambientLight);
-
     // PointLight
     let pointLight = new THREE.PointLight(0xffffff, 0.5, 0, 0);
     pointLight.castShadow = false;
@@ -182,7 +180,7 @@ function main() {
 
     let spotLight = new THREE.SpotLight(0xddddff, 0.2, 0, THREE.MathUtils.degToRad(45), 1, 2);
     spotLight.position.set(-200, 200, -200);
-    spotLight.target = turntableFromFile; // TODO: Set target
+    spotLight.target = turntable; // TODO: Set target
     spotLight.castShadow = true;
     spotLight.shadow.mapSize.set(1024, 1024);
     spotLight.shadow.camera.aspect = 1;
@@ -227,45 +225,16 @@ function main() {
     gui1.add(turntable.position, 'z', -200, 200).step(0.1);
 
 
+    // Global variables
+    // ----------------
+    window.isPoweredOn = false;
+    window.isRotating = false;
+    window.armIsOnRecord = false;
+    window.armIsOnEnd = false;
+    window.needleLightIsOn = false;
+    window.playbackPitch = 0;
+    window.playbackRpm = 33;
 
-    // Testarea
-    // ----------------------------------------------
-    /*const planeGeo = new THREE.PlaneGeometry(20, 20, 1);
-    const planeTexture = new THREE.TextureLoader().load('src/images/tabletop_texture.png');
-    const planeTextureMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        flatShading: false,
-        roughness: 0.4,
-        metalness: 1,
-        wireframe: false
-    });
-    planeTextureMaterial.map = planeTexture;
-    planeGeo.setAttribute('uv', {
-        name: "",
-        needsUpdate: false,
-        onUploadCallback: function () {},
-        array: new Float32Array([
-            0.5, 1,
-            1, 1,
-            0.5, 0.5,
-            1, 0.5]),
-        itemSize: 2,
-        count: 4,
-        normalized: false,
-        usage: 35044,
-        updateRange: { offset: 0, count: -1 },
-        version: 0
-    });
-    const plane = new THREE.Mesh(planeGeo, planeTextureMaterial); //.rotateX(THREE.MathUtils.degToRad(-90));
-    plane.position.set(0, 30, 0);
-    scene.add(plane);
-
-    console.log(planeGeo);*/
-
-    //for (let attribute in tabletopGeometry.attributes.position) {
-    //    console.log(attribute);
-    //}
-    // ----------------------------------------------
 
     // Functions
     // ---
@@ -276,7 +245,11 @@ function main() {
     }
 
     mainLoop();
-}
 
+}
 window.onload = main;
 window.onresize = updateAspectRatio;
+window.onmousemove = calculateMousePosition;
+window.onclick = executeRaycast;
+
+

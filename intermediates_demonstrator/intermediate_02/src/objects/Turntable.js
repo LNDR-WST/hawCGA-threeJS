@@ -39,8 +39,17 @@ export default class Turntable extends THREE.Group {
         });
 
         const tabletopMaterialTextured = tabletopMaterial.clone();
-        const tabletopTexture = new THREE.TextureLoader().load('src/images/tabletop_texture.png');
+        const tabletopTexture = new THREE.TextureLoader().load('src/images/turntabletop.jpg');
+        tabletopTexture.flipY = false;
         tabletopMaterialTextured.map = tabletopTexture;
+
+        const tabletopPowerMaterial = tabletopMaterial.clone();
+        const tabletopPowerMap = new THREE.TextureLoader().load('src/images/powertext.jpg');
+        tabletopPowerMaterial.map = tabletopPowerMap;
+
+        const tabletopWeightAdjMaterial = tabletopMaterial.clone();
+        const tabletopWeightAdjMap = new THREE.TextureLoader().load('src/images/weighttext.jpg');
+        tabletopWeightAdjMaterial.map = tabletopWeightAdjMap;
 
         const metalMaterial = new THREE.MeshStandardMaterial({
             color: 0xcccccc,
@@ -57,12 +66,24 @@ export default class Turntable extends THREE.Group {
         metalMaterial.envMap = envMap;
         metalMaterial.envMapIntensity = 10.0;
 
-        const rotaryRingMaterial = metalMaterial.clone();
-        rotaryRingMaterial.map = new THREE.TextureLoader().load('src/images/test.jpg');
-        rotaryRingMaterial.bumpmap = new THREE.TextureLoader().load('src/images/test2.jpg');
+        const rotaryRingMaterial = new THREE.MeshStandardMaterial({
+            color: 0xcccccc,
+            flatShading: false,
+            roughness: 0.4,
+            metalness: 1
+        });
+        rotaryRingMaterial.map = new THREE.TextureLoader().load('src/images/rotaryRing_base.jpg');
+        rotaryRingMaterial.normalMap = new THREE.TextureLoader().load('src/images/rotaryRing_normal.jpg');
 
-        const vinylMaterial = metalMaterial.clone();
-        vinylMaterial.map = new THREE.TextureLoader().load('src/images/vinyl.jpg');
+        const vinylMaterial = new THREE.MeshStandardMaterial({
+            color: 0xcccccc,
+            flatShading: false,
+            roughness: 0.5,
+            metalness: 0
+        });
+        vinylMaterial.map = new THREE.TextureLoader().load('src/images/vinyl_basecolor.jpg');
+        vinylMaterial.bumpMap = new THREE.TextureLoader().load('src/images/vinyl_bumpmap.jpg');
+        vinylMaterial.bumpScale = 0.2;
 
         const emissivePowerMaterial = new THREE.MeshStandardMaterial({
             color: 0x2f0000,
@@ -78,6 +99,19 @@ export default class Turntable extends THREE.Group {
             specular: 0x111111,
             shininess: 35
         });
+
+        const startButtonMaterial = metalMaterial.clone();
+        startButtonMaterial.map = new THREE.TextureLoader().load('src/images/startstoptext.jpg');
+        startButtonMaterial.map.flipY = false;
+
+        const fourtyFiveButtonMaterial = metalMaterial.clone();
+        fourtyFiveButtonMaterial.map = new THREE.TextureLoader().load('src/images/45.jpg');
+        fourtyFiveButtonMaterial.map.flipY = false;
+
+        const thirtyThreeButtonMaterial = metalMaterial.clone();
+        thirtyThreeButtonMaterial.map = new THREE.TextureLoader().load('src/images/33.jpg');
+        thirtyThreeButtonMaterial.map.flipY = false;
+
 
 
         // Corpus
@@ -135,6 +169,7 @@ export default class Turntable extends THREE.Group {
         corpusGeometry.setIndex(indices);
         corpusGeometry.computeVertexNormals();
         const corpus = new THREE.Mesh(corpusGeometry, corpusMaterial);
+        corpus.name = 'Corpus';
         this.add(corpus);
 
         // Tabletop
@@ -147,9 +182,10 @@ export default class Turntable extends THREE.Group {
         const tabletopGeometry = CSG.BufferGeometry(tabletopCSG);
         const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterialTextured);
         tabletop.position.set(0, 14.3875, 0); // Oberes Face bei z = 15.075
+        tabletop.name = 'Tabletop';
         this.add(tabletop);
 
-        setVertexUvs(tabletopGeometry, 64, 46, ['x','z'], 0, 16.5, 0, 7);
+        setVertexUvs(tabletopGeometry, 64, 46, ['x','z'], 0, 16, 0, 6.85);
 
 
         // Feet
@@ -176,21 +212,25 @@ export default class Turntable extends THREE.Group {
         const footBackLeft = new THREE.Group();
         footBackLeft.add(footTop, footMiddle, footMetal, footBottom);
         footBackLeft.position.set(-25,0,-19.25);
+        footBackLeft.name = 'footBackLeft';
         this.add(footBackLeft);
 
         // vorne links
         const footFrontLeft = footBackLeft.clone();
         footFrontLeft.position.set(-25, 0, 19.25);
+        footFrontLeft.name = 'footFrontLeft';
         this.add(footFrontLeft);
 
         // hinten rechts
         const footBackRight = footBackLeft.clone();
         footBackRight.position.set(25, 0, -19.25);
+        footBackRight.name = 'footBackRight';
         this.add(footBackRight);
 
         // vorne rechts
         const footFrontRight = footBackLeft.clone();
         footFrontRight.position.set(25, 0, 19.25);
+        footFrontRight.name = 'footFrontRight';
         this.add(footFrontRight);
 
 
@@ -204,16 +244,17 @@ export default class Turntable extends THREE.Group {
         const singlePukGeometry = CSG.BufferGeometry(singlePukCSG);
         const singlePuk = new THREE.Mesh(singlePukGeometry, metalMaterial);
         singlePuk.position.set(-27, 15.175, -19.5);
+        singlePuk.name = 'footFrontRight';
         this.add(singlePuk);
 
-        // Rotary Disc
+        // Rotary disk
         // -----------
 
         const rotaryDiscGeometry = new THREE.CylinderGeometry(21.3,23.4, 1.82, 64);
-        const rotaryDisc = new THREE.Mesh(rotaryDiscGeometry, [rotaryRingMaterial, vinylMaterial]);
-        rotaryDisc.name = 'rotaryDisk';
+        const rotaryDisc = new THREE.Mesh(rotaryDiscGeometry, [rotaryRingMaterial, vinylMaterial, vinylMaterial]);
+        rotaryDisc.name = 'rotaryDiskWithRecord';
 
-            // Plattenzentrierung
+            // Record center
             const centerCylinder = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 16);
             const centerSphere = new THREE.SphereGeometry(0.5, 32, 32).translate(0, 0.75, 0);
             const rotaryDiskCenterCSG = CSG.union([centerCylinder, centerSphere]);
@@ -241,10 +282,10 @@ export default class Turntable extends THREE.Group {
         emissivePowerLight.name = 'emissivePowerLight';
 
         // Switch
-        const actualSwitchGeometry = new THREE.CylinderGeometry(1.9, 1.9, 0.5, 16);
-        const actualSwitch = new THREE.Mesh(actualSwitchGeometry, tabletopMaterial);
+        const actualSwitchGeometry = new THREE.CylinderBufferGeometry(1.9, 1.9, 0.5, 16);
+        const actualSwitch = new THREE.Mesh(actualSwitchGeometry, tabletopPowerMaterial);
         actualSwitch.position.set(0, 1.75 + 0.5/2, 0);
-        actualSwitch.name = 'actualSwitch'; // TODO: this needs to be rotated later
+        actualSwitch.name = 'actualPowerSwitch'; // TODO: this needs to be rotated later
 
         // Power Knob Group
         const powerKnob = new THREE.Group();
@@ -305,7 +346,8 @@ export default class Turntable extends THREE.Group {
             9, 7, 5     // top right face 2/2
         ]);
         startStopButtonGeometry.computeVertexNormals();
-        const startStopButton = new THREE.Mesh(startStopButtonGeometry, metalMaterial);
+        setVertexUvs(startStopButtonGeometry, 5.8, 4.3, ['x','z'], 0, 0, 0, 0);
+        const startStopButton = new THREE.Mesh(startStopButtonGeometry, startButtonMaterial);
         startStopButton.position.set(-27.5, 15.175, 21.2);
         startStopButton.name = 'startStopButton'; // TODO: needs to be pushed later
         this.add(startStopButton);
@@ -358,9 +400,10 @@ export default class Turntable extends THREE.Group {
             9, 7, 5     // top right face 2/2
         ]);
         fourtyFiveButtonGeometry.computeVertexNormals();
-        const fourtyFiveButton = new THREE.Mesh(fourtyFiveButtonGeometry, metalMaterial);
+        setVertexUvs(fourtyFiveButtonGeometry, 3.3, 0.9, ['x','z'], 0, 0, 0, 0);
+        const fourtyFiveButton = new THREE.Mesh(fourtyFiveButtonGeometry, fourtyFiveButtonMaterial);
         fourtyFiveButton.position.set(-22, 15.175, 21.2 + 4.5/2 - 1.1/2);
-        fourtyFiveButton.name = 'fourtyFiveButton'; // TODO: needs to be pushed later
+        fourtyFiveButton.name = '45rpmButton'; // TODO: needs to be pushed later
         this.add(fourtyFiveButton);
 
 
@@ -371,8 +414,9 @@ export default class Turntable extends THREE.Group {
         this.add(thirtyThreeButtonFrame);
 
         const thirtyThreeButton = fourtyFiveButton.clone();
+        thirtyThreeButton.material = thirtyThreeButtonMaterial;
         thirtyThreeButton.position.set(-22 + 3.5, 15.175, 21.2 + 4.5/2 - 1.1/2);
-        thirtyThreeButton.name = 'thirtyThreeButton'; // TODO: needs to be pushed later
+        thirtyThreeButton.name = '33rpmButton'; // TODO: needs to be pushed later
         this.add(thirtyThreeButton);
 
         // Nadelbeleuchtung
@@ -396,7 +440,7 @@ export default class Turntable extends THREE.Group {
             const needleLightGeometry = new THREE.CylinderGeometry(0.65, 0.65, 3.6, 16);
             const needleLight = new THREE.Mesh(needleLightGeometry, metalMaterial);
             needleLight.position.set(-1.2, 0.125 + 1.8, 0);
-            needleLight.name = 'needleLight';       // TODO: Needs to go down, when pushed; up, when turned on via button to the right
+            needleLight.name = 'needleLightWithIntegratedOffButton';       // TODO: Needs to go down, when pushed; up, when turned on via button to the right
             needleLightingPlate.add(needleLight);   // child[0]
 
             // Light on button
@@ -416,8 +460,8 @@ export default class Turntable extends THREE.Group {
 
         const speedSliderCSG = CSG.subtract([
             new THREE.BoxGeometry(2.675, 1.8, 1.8).rotateX(THREE.MathUtils.degToRad(45)),
-            new THREE.CylinderGeometry(0.9, 0.9, 2.7, 64).rotateZ(THREE.MathUtils.degToRad(90)).translate(0, 1, -1),
-            new THREE.CylinderGeometry(0.9, 0.9, 2.7, 64).rotateZ(THREE.MathUtils.degToRad(90)).translate(0, 1, 1),
+            new THREE.CylinderBufferGeometry(0.9, 0.9, 2.7, 128).rotateZ(THREE.MathUtils.degToRad(90)).translate(0, 1, -1),
+            new THREE.CylinderBufferGeometry(0.9, 0.9, 2.7, 128).rotateZ(THREE.MathUtils.degToRad(90)).translate(0, 1, 1),
             new THREE.CylinderGeometry(0.1, 0.1, 2.7, 16).rotateZ(THREE.MathUtils.degToRad(90)).translate(0, 1.2, 0)
         ]);
         const speedSliderGeometry = CSG.BufferGeometry(speedSliderCSG);
@@ -443,11 +487,12 @@ export default class Turntable extends THREE.Group {
 
             const armPlate2base = new THREE.CylinderGeometry(2.6, 2.6, 0.36, 32).translate(0, 2.105, 0);
             const armPlate2extension = new THREE.BoxGeometry(4.8, 0.36, 3).translate(3, 2.105, 0);
-            const armPlate2cylinder = new THREE.CylinderGeometry(1.5, 1.5, 0.72, 16).translate(5.4, 2.285, 0);
-            const armPlate2CSG = CSG.union([armPlate2base, armPlate2extension, armPlate2cylinder]);
+            const armPlate2CSG = CSG.union([armPlate2base, armPlate2extension]);
             const armPlate2Geometry = CSG.BufferGeometry(armPlate2CSG);
             const armPlate2 = new THREE.Mesh(armPlate2Geometry, corpusMaterial);
-            basePlate.add(armPlate2);
+            const armPlateWeightCylinderGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.72, 16).translate(5.4, 2.285, 0);
+            const armPlateWeightCylinder = new THREE.Mesh(armPlateWeightCylinderGeo, [corpusMaterial, tabletopWeightAdjMaterial, corpusMaterial]);
+            basePlate.add(armPlate2, armPlateWeightCylinder);
 
             const armPlate3Base = new THREE.CylinderGeometry(2.3, 2.3, 0.3, 32).translate(0, 2.105 + 0.3, 0);
             const armPlate3Cut = new THREE.BoxGeometry(1, 0.3, 3).translate(2.3, 2.105 + 0.3, 0);
@@ -740,6 +785,7 @@ export default class Turntable extends THREE.Group {
 
             // arm weight (group)
             const armWeight = new THREE.Group();
+            armWeight.name = "armWeight";
             arm.add(armWeight);
             armWeight.position.set(0, 0, -3.675 - 2.2);
 
@@ -789,6 +835,7 @@ export default class Turntable extends THREE.Group {
             const needleHead = new THREE.Group();
             needleHead.position.set(19.23, 16.655 + 2.2, 13.5);
             needleHead.rotateY(THREE.MathUtils.degToRad(-22));
+            needleHead.name = "needleHead";
             this.add(needleHead);
 
             const needleHeadCyl1Geo = new THREE.CylinderGeometry(0.7, 0.7, 1.9, 32);
@@ -915,7 +962,6 @@ export default class Turntable extends THREE.Group {
          * setVertexUvs
          * ------------
          * Uses function 'calculateUvs' for setting the uv-attributes of a geometry.
-         * Copies information from position-attributes.
          *
          * @param geometry THREE geometry that needs its UVs to be set.
          * @param width width of geometry (first axis; e.g. 'x')
@@ -925,27 +971,11 @@ export default class Turntable extends THREE.Group {
          * @param stretchY stretch texture in height
          * @param offsetX move texture in width (ends will be cut off)
          * @param offsetY move texture in height (ends will be cut off)
-         * @param callback from manual: callback function that is executed after the Renderer has transferred the attribute array data to the GPU
          *
          * Does not return anything.
          */
-        function setVertexUvs(geometry, width, height, axes = ['x', 'z'], stretchX = 0, stretchY = 0, offsetX = 0, offsetY = 0, callback = null) {
-            if (callback === null) {
-                callback = function () {};
-            }
-            const positionInfo = geometry.getAttribute('position');
-            geometry.setAttribute('uv', {
-                name: geometry.name,
-                needsUpdate: false,
-                onUploadCallback: callback,
-                array: new Float32Array(calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY)),
-                itemSize: 2,
-                count: positionInfo.count,
-                normalized: positionInfo.normalized,
-                usage: positionInfo.usage,
-                updateRange: positionInfo.updateRange,
-                version: positionInfo.version
-            });
+        function setVertexUvs(geometry, width, height, axes = ['x', 'z'], stretchX = 0, stretchY = 0, offsetX = 0, offsetY = 0) {
+            geometry.setAttribute('uv', new THREE.Float32BufferAttribute(calculateUvs(geometry, width, height, axes, stretchX, stretchY, offsetX, offsetY), 2));
         }
 
 
