@@ -8,12 +8,12 @@ import * as TWEEN from '../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 import {updateAspectRatio} from './eventfunctions/updateAspectRatio.js';
 import {calculateMousePosition} from './eventfunctions/calculateMousePosition.js';
 import {executeRaycast} from './eventfunctions/executeRaycast.js';
+//import {keyDownAction, keyUpAction} from './eventfunctions/executeKeyAction.js';
 
 // Module import
 import Floor from './objects/Floor.js';
 import TurntableFromFile from './objects/TurntableFromFile.js';
 import Turntable from './objects/Turntable.js';
-//import {MathUtil} from "../../../lib/three.js-r134/examples/jsm/libs/OimoPhysics";
 
 
 function main() {
@@ -160,11 +160,11 @@ function main() {
     window.scene.add(floor);
 
     // TurntableFromFile
-    let turntableFromFile = new TurntableFromFile();
-    turntableFromFile.position.set(-50, 0, 0);
+//    let turntableFromFile = new TurntableFromFile();
+//    turntableFromFile.position.set(-50, 0, 0);
     //turntableFromFile.rotation.set();
     //turntableFromFile.addPhysics(); // TODO: enable when physics implemented
-    window.scene.add(turntableFromFile);
+//    window.scene.add(turntableFromFile);
 
     // Turntable
     const turntable = new Turntable();
@@ -224,21 +224,11 @@ function main() {
     gui1.add(turntable.position, 'y', -200, 200).step(0.1);
     gui1.add(turntable.position, 'z', -200, 200).step(0.1);
 
-
-    // Global variables
-    // ----------------
-    window.isPoweredOn = false;
-    window.isRotating = false;
-    window.armIsOnRecord = false;
-    window.armIsOnEnd = false;
-    window.needleLightIsOn = false;
-    window.playbackPitch = 0;
-    window.playbackRpm = 33;
-
-
     // Functions
     // ---
     function mainLoop() {
+
+        TWEEN.update();
 
         window.renderer.render(window.scene, window.camera); // Rendern der Szene
         requestAnimationFrame(mainLoop); // Anfrage nächstmögliche Ausführung mainLoop(); pausiert bei Minimierung; Sync zu refresh rate Monitor
@@ -251,5 +241,7 @@ window.onload = main;
 window.onresize = updateAspectRatio;
 window.onmousemove = calculateMousePosition;
 window.onclick = executeRaycast;
+//window.onkeydown = keyDownAction;
+//window.onkeyup = keyUpAction;
 
 

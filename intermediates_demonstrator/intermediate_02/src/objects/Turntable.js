@@ -7,7 +7,16 @@ export default class Turntable extends THREE.Group {
     constructor() {
         super();
 
-        this.animations = [];
+        this.isPoweredOn = false;
+        this.isRotating = false;
+        this.armIsOnRecord = false;
+        this.armIsOnEnd = false;
+        this.needleLightIsOn = false;
+        this.playbackPitch = 0;
+        this.playbackRpm = 33;
+        this.music = new Audio('./src/music/music.mp3');
+        this.crackling = new Audio('./src/music/crackling.mp3');
+
         this.addParts();
     }
 
@@ -90,7 +99,7 @@ export default class Turntable extends THREE.Group {
             flatShading: false,
             roughness: 0.4,
             metalness: 0,
-            emissive: 0x910000 // TODO: turn emissive to 0x000000 when 'power off'
+            emissive: 0x000000
         });
 
         const redPlasticMaterial = new THREE.MeshPhongMaterial({
@@ -264,7 +273,52 @@ export default class Turntable extends THREE.Group {
             rotaryDisc.add(rotaryDiskCenter);
             rotaryDisc.children[0].position.set(0, 1.66, 0);
 
+        //const tempPosition = {x: rotaryDisc.position.x, y: rotaryDisc.position.y, z: rotaryDisc.position.z};
+
         rotaryDisc.position.set(-6.5, 15.075 + 1.82/2, 0);
+
+
+
+        const tweenDiscRotate = new TWEEN.Tween(rotaryDisc.rotation)
+            .to({x: '+0',
+                y: `${-2*Math.PI}`,
+                z: '+0'}, 1/this.playbackRpm * 60 * 1000)
+            .easing(TWEEN.Easing.Linear.None)
+            .repeat(Infinity)
+            .onUpdate(() => {
+                if (this.music.paused && !this.armIsOnEnd && this.crackling.paused && this.armIsOnRecord) {
+                    this.crackling.currentTime = 0;
+                    this.crackling.play();
+                    this.crackling.loop = true;
+                }
+            })
+            .onRepeat(() => {});
+
+        const tweenDiscStart = new TWEEN.Tween(rotaryDisc.rotation)
+            .to({x: '+0',
+                y: `${-Math.PI}`,
+                z: '+0'}, 1/this.playbackRpm * 60 * 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .chain(tweenDiscRotate)
+            .onUpdate(() => {
+                if (this.armIsOnRecord) {
+                    arm.userData.tweenRollingSide.start();
+                }
+            })
+            .onComplete(() => {});
+
+        const tweenDiscStop = new TWEEN.Tween(rotaryDisc.rotation)
+            .to({x: '+0',
+                y: `${-1/8*Math.PI}`,
+                z: '+0'}, 1/this.playbackRpm * 60 * 1000)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onStart(() => {
+                this.crackling.pause();
+            });
+
+        rotaryDisc.userData = {tweenStart: tweenDiscStart, tweenStop: tweenDiscStop, tweenRotate: tweenDiscRotate};
+
+
         this.add(rotaryDisc);
 
         // Power Switch
@@ -275,7 +329,7 @@ export default class Turntable extends THREE.Group {
         const powerKnobCylinder = new THREE.Mesh(powerKnobCylinderGeometry, metalMaterial);
         powerKnobCylinder.position.set(0, 1.75/2, 0);
 
-        // Emissive Powerlight
+        // Emissive Powerlight // TODO: Cutout from Main Cylinder with Buffer Geometry setting open faces?
         const emissivePowerLightGeometry = new THREE.CylinderGeometry(2.025, 2.025, 1.5, 16, 1, false, 1.5, 1.25);
         const emissivePowerLight = new THREE.Mesh(emissivePowerLightGeometry, emissivePowerMaterial);
         emissivePowerLight.position.set(0, 1.75/2, 0);
@@ -285,7 +339,22 @@ export default class Turntable extends THREE.Group {
         const actualSwitchGeometry = new THREE.CylinderBufferGeometry(1.9, 1.9, 0.5, 16);
         const actualSwitch = new THREE.Mesh(actualSwitchGeometry, tabletopPowerMaterial);
         actualSwitch.position.set(0, 1.75 + 0.5/2, 0);
-        actualSwitch.name = 'actualPowerSwitch'; // TODO: this needs to be rotated later
+        actualSwitch.name = 'actualPowerSwitch';
+        actualSwitch.userData = {
+            tweenOn: new TWEEN.Tween(actualSwitch.rotation)
+                .to(new THREE.Vector3(actualSwitch.rotation.x,
+                    actualSwitch.rotation.y + THREE.MathUtils.degToRad(-90),
+                    actualSwitch.rotation.z), 125),
+            tweenOff: new TWEEN.Tween(actualSwitch.rotation)
+                .to(new THREE.Vector3(actualSwitch.rotation.x,
+                    actualSwitch.rotation.y,
+                    actualSwitch.rotation.z), 125),
+            tweenLightOn: new TWEEN.Tween(emissivePowerLight.material.emissive)
+                .to(new THREE.Color(0x910000), 125),
+            tweenLightOff: new TWEEN.Tween(emissivePowerLight.material.emissive)
+                .to(new THREE.Color(0x000000), 125)
+        };
+
 
         // Power Knob Group
         const powerKnob = new THREE.Group();
@@ -349,7 +418,13 @@ export default class Turntable extends THREE.Group {
         setVertexUvs(startStopButtonGeometry, 5.8, 4.3, ['x','z'], 0, 0, 0, 0);
         const startStopButton = new THREE.Mesh(startStopButtonGeometry, startButtonMaterial);
         startStopButton.position.set(-27.5, 15.175, 21.2);
-        startStopButton.name = 'startStopButton'; // TODO: needs to be pushed later
+        startStopButton.name = 'startStopButton';
+        startStopButton.userData = {
+            tweenPush: new TWEEN.Tween(startStopButton.position)
+                .to(new THREE.Vector3(startStopButton.position.x,
+                    startStopButton.position.y - 0.075,
+                    startStopButton.position.z), 125).repeat(1).yoyo(true)
+        };
         this.add(startStopButton);
 
         // 45 RPM Button
@@ -403,7 +478,17 @@ export default class Turntable extends THREE.Group {
         setVertexUvs(fourtyFiveButtonGeometry, 3.3, 0.9, ['x','z'], 0, 0, 0, 0);
         const fourtyFiveButton = new THREE.Mesh(fourtyFiveButtonGeometry, fourtyFiveButtonMaterial);
         fourtyFiveButton.position.set(-22, 15.175, 21.2 + 4.5/2 - 1.1/2);
-        fourtyFiveButton.name = '45rpmButton'; // TODO: needs to be pushed later
+        fourtyFiveButton.name = '45rpmButton';
+        fourtyFiveButton.userData = {
+            tweenPush: new TWEEN.Tween(fourtyFiveButton.position)
+                .to(new THREE.Vector3(fourtyFiveButton.position.x,
+                    fourtyFiveButton.position.y - 0.075,
+                    fourtyFiveButton.position.z
+                ), 125).repeat(1).yoyo(true)
+                .onStart(() => {
+                    this.music.playbackRate = 1.36;
+                })
+        };
         this.add(fourtyFiveButton);
 
 
@@ -416,7 +501,17 @@ export default class Turntable extends THREE.Group {
         const thirtyThreeButton = fourtyFiveButton.clone();
         thirtyThreeButton.material = thirtyThreeButtonMaterial;
         thirtyThreeButton.position.set(-22 + 3.5, 15.175, 21.2 + 4.5/2 - 1.1/2);
-        thirtyThreeButton.name = '33rpmButton'; // TODO: needs to be pushed later
+        thirtyThreeButton.name = '33rpmButton';
+        thirtyThreeButton.userData = {
+            tweenPush: new TWEEN.Tween(thirtyThreeButton.position)
+                .to(
+                    new THREE.Vector3(thirtyThreeButton.position.x,
+                    thirtyThreeButton.position.y - 0.075,
+                    thirtyThreeButton.position.z), 125).repeat(1).yoyo(true)
+                .onStart(() => {
+                    this.music.playbackRate = 1.0;
+                })
+        };
         this.add(thirtyThreeButton);
 
         // Nadelbeleuchtung
@@ -439,15 +534,38 @@ export default class Turntable extends THREE.Group {
             // Light Cylinder
             const needleLightGeometry = new THREE.CylinderGeometry(0.65, 0.65, 3.6, 16);
             const needleLight = new THREE.Mesh(needleLightGeometry, metalMaterial);
-            needleLight.position.set(-1.2, 0.125 + 1.8, 0);
-            needleLight.name = 'needleLightWithIntegratedOffButton';       // TODO: Needs to go down, when pushed; up, when turned on via button to the right
+            needleLight.position.set(-1.2, 0.125 + 1.8 - 1.5, 0);
+            needleLight.name = 'needleLightOffButton';
+            const needleSpotLight = new THREE.SpotLight(0xf5ebb8, 0, 20, 5*Math.PI/180);
+            needleSpotLight.position.set(0, 0, 0);
+            needleSpotLight.target = rotaryDiskCenter;
+            needleLight.add(needleSpotLight);
+
+            needleLight.userData = {
+                tweenDown: new TWEEN.Tween(needleLight.position)
+                    .to(new THREE.Vector3(needleLight.position.x, needleLight.position.y, needleLight.position.z), 75)
+                    .onStart(() => {
+                        needleSpotLight.intensity = 0;
+                    }),
+                tweenUp: new TWEEN.Tween(needleLight.position)
+                    .to(new THREE.Vector3(needleLight.position.x, needleLight.position.y + 1.5, needleLight.position.z), 75)
+                    .onComplete(() => {
+                        needleSpotLight.intensity = 1;
+                    })
+            };
             needleLightingPlate.add(needleLight);   // child[0]
 
             // Light on button
             const needleLightOnButtonGeometry = new THREE.CylinderGeometry(0.4, 0.4, 1, 16);
             const needleLightOnButton = new THREE.Mesh(needleLightOnButtonGeometry, metalMaterial);
-            needleLightOnButton.position.set(1.2, -0.25, 0);
-            needleLight.name = 'needleLightOnButton';   // TODO: Turns on and lifts up needleLight
+            needleLightOnButton.position.set(1.2, -0.25 + 0.5, 0);
+            needleLightOnButton.name = 'needleLightOnButton';
+            needleLightOnButton.userData = {
+                tweenDown: new TWEEN.Tween(needleLightOnButton.position)
+                    .to(new THREE.Vector3(needleLightOnButton.position.x, needleLightOnButton.position.y - 0.5, needleLightOnButton.position.z), 75),
+                tweenUp: new TWEEN.Tween(needleLightOnButton.position)
+                    .to(new THREE.Vector3(needleLightOnButton.position.x, needleLightOnButton.position.y, needleLightOnButton.position.z), 75)
+            };
             needleLightingPlate.add(needleLightOnButton);   // child[1]
 
         this.add(needleLightingPlate);
@@ -632,6 +750,21 @@ export default class Turntable extends THREE.Group {
         const horizontalJoint = new THREE.Mesh(horizontalJointGeometry, corpusMaterial);
         horizontalJoint.position.set(21.2, 16.655 + 2.2, -12.4);
         horizontalJoint.name = 'horizontalJointWithCylinder'; // TODO: needs to be rotated later
+
+        const plasticParkPosition = horizontalJoint.rotation;
+        const tweenMoveArmPlasticSide1 = new TWEEN.Tween(horizontalJoint.rotation)
+            .to({x: 0, y: THREE.MathUtils.degToRad(-25.2), z: 0}, 1500)
+            .easing(TWEEN.Easing.Quadratic.InOut);
+        const tweenMoveArmPlasticSide2 = new TWEEN.Tween(horizontalJoint.rotation)
+            .to({x: plasticParkPosition.x, y: plasticParkPosition.y, z: plasticParkPosition.z}, 1500)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .delay(1000);
+
+        horizontalJoint.userData = {
+            tweenMoveArmPlasticSide1: tweenMoveArmPlasticSide1,
+            tweenMoveArmPlasticSide2: tweenMoveArmPlasticSide2
+        };
+
         this.add(horizontalJoint);
 
             // rotation cylinder (vertical rotation)
@@ -746,6 +879,7 @@ export default class Turntable extends THREE.Group {
             new THREE.Vector3(0, 1, 0),                // Axis for rotation
             THREE.MathUtils.degToRad(-57.5),            // rotation angle
             false);                                 // point is local, because object is added to Turntable
+        blackLocking.name = 'blackLocking';
         this.add(blackLocking);
 
 
@@ -755,6 +889,79 @@ export default class Turntable extends THREE.Group {
         const arm = new THREE.Group();
         arm.position.set(21.2, 18.855, -12.4);
         arm.name = 'arm';
+
+        const tweenRollingSide = new TWEEN.Tween(arm.rotation)
+            .to(new THREE.Vector3(
+                arm.rotation.x + THREE.MathUtils.degToRad(2.4), arm.rotation.y + THREE.MathUtils.degToRad(-46), arm.rotation.z
+            ), 35000)
+            .onStart(() => {
+                this.music.play();
+            })
+            .onStop(() => {
+                this.music.pause();
+            })
+            .onUpdate(() => {
+                if (!this.isRotating) {
+                    arm.userData.tweenRollingSide.stop();
+                    this.crackling.pause();
+                }
+            })
+            .onComplete(() => {
+                this.armIsOnEnd = true;
+                if (this.isRotating && this.crackling.paused) {
+                    this.crackling.currentTime = 0;
+                    this.crackling.play();
+                    this.crackling.loop = true;
+                }
+            });
+
+        const tweenToRecordDown = new TWEEN.Tween(arm.rotation)
+            .to(new THREE.Vector3(
+                arm.rotation.x + THREE.MathUtils.degToRad(2.4), arm.rotation.y + THREE.MathUtils.degToRad(-25.3), arm.rotation.z
+            ), 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onComplete(() => {
+                if (this.isRotating){
+                    arm.userData.tweenRollingSide.start();
+                }
+            });
+        const tweenToRecordSide = new TWEEN.Tween(arm.rotation)
+            .to(new THREE.Vector3(
+                arm.rotation.x, arm.rotation.y + THREE.MathUtils.degToRad(-25.3), arm.rotation.z
+            ), 1500)
+            .chain(tweenToRecordDown)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onUpdate(()=>{});
+
+        const tweenFromRecordSide = new TWEEN.Tween(arm.rotation)
+            .to(new THREE.Vector3(
+                arm.rotation.x, arm.rotation.y, arm.rotation.z
+            ), 1500)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onComplete(() => {
+                arm.rotation.set(0, 0, 0);
+            });
+
+        const tweenFromRecordUp = new TWEEN.Tween(arm.rotation)
+            .to(new THREE.Vector3(
+                arm.rotation.x, arm.rotation.y + THREE.MathUtils.degToRad(-25.3), arm.rotation.z
+            ), 1000)
+            .chain(tweenFromRecordSide)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onStart(() => {
+                this.music.currentTime = 0;
+                this.crackling.pause();
+                this.crackling.currentTime = 0;
+            });
+
+        arm.userData = {
+            tweenToRecordSide: tweenToRecordSide,
+            tweenToRecordDown: tweenToRecordDown,
+            tweenFromRecordSide: tweenFromRecordSide,
+            tweenFromRecordUp: tweenFromRecordUp,
+            tweenRollingSide: tweenRollingSide
+        };
+
         this.add(arm);
 
         this.rotateAboutPoint(
@@ -833,10 +1040,10 @@ export default class Turntable extends THREE.Group {
 
             // needle head (group)
             const needleHead = new THREE.Group();
-            needleHead.position.set(19.23, 16.655 + 2.2, 13.5);
-            needleHead.rotateY(THREE.MathUtils.degToRad(-22));
+            needleHead.position.set(0.25, 0, 26);
+            needleHead.rotateY(THREE.MathUtils.degToRad(-19));
             needleHead.name = "needleHead";
-            this.add(needleHead);
+            arm.add(needleHead);
 
             const needleHeadCyl1Geo = new THREE.CylinderGeometry(0.7, 0.7, 1.9, 32);
             const needleHeadCyl1 = new THREE.Mesh(needleHeadCyl1Geo, metalMaterial);
@@ -890,14 +1097,14 @@ export default class Turntable extends THREE.Group {
                 .rotateZ(THREE.MathUtils.degToRad(2))
                 .rotateY(THREE.MathUtils.degToRad(90))
                 .translate(0, 0.35, 7);
-            const rectNeedleCutout = new THREE.BoxGeometry(0.4, 0.4, 0.4).translate(0, 0, 9.2);
-            const needleHeadCSG = CSG.subtract([needleHeadEndBaseGeo, rectEndTopGeo, rectEndBottomGeo, rectNeedleCutout]);
+            const rectNeedleCutout = new THREE.BoxGeometry(0.4, 2, 0.4).translate(0, 0, 9.2);
+            const needleHeadCSG = CSG.subtract([needleHeadEndBaseGeo, rectEndBottomGeo, rectNeedleCutout]);
             const needleHeadEndGeo = CSG.BufferGeometry(needleHeadCSG);
             const needleHeadEnd = new THREE.Mesh(needleHeadEndGeo, redPlasticMaterial);
 
-            const needleGeometry = new THREE.CylinderGeometry(0, 0.025, 0.4, 16)
-                .rotateX(THREE.MathUtils.degToRad(105))
-                .translate(0, -0.1, 9.2);
+            const needleGeometry = new THREE.CylinderGeometry(0.005, 0.025, 0.8, 16)
+                .rotateX(THREE.MathUtils.degToRad(160))
+                .translate(0, -0.53, 9.05);
             const needle = new THREE.Mesh(needleGeometry, metalMaterial);
             needleHeadEnd.add(needle);
             needleHead.add(needleHeadEnd);
