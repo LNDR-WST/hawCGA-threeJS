@@ -12,12 +12,13 @@ export default class Turntable extends THREE.Group {
         this.armIsOnRecord = false;
         this.armIsOnEnd = false;
         this.needleLightIsOn = false;
-        this.playbackPitch = 0;
         this.playbackRpm = 33;
-        this.music = new Audio('./src/music/music.mp3');
-        this.crackling = new Audio('./src/music/crackling.mp3');
+        this.music = new Audio('src/music/music.mp3');
+        this.crackling = new Audio('src/music/crackling.mp3');
+        this.crackling.volume = 0.2;
 
         this.addParts();
+
     }
 
     addParts() {
@@ -31,6 +32,7 @@ export default class Turntable extends THREE.Group {
             specular: 0x111111,
             shininess: 30
         });
+        corpusMaterial.color.setHex(0x111111).convertSRGBToLinear();
 
         const footMaterial = new THREE.MeshPhongMaterial({ // wie corpusMaterial, aber Smooth-Shading
             color: 0x111111,
@@ -38,6 +40,7 @@ export default class Turntable extends THREE.Group {
             specular: 0x111111,
             shininess: 30
         });
+        footMaterial.color.setHex(0x111111).convertSRGBToLinear();
 
         const tabletopMaterial = new THREE.MeshStandardMaterial({
             color: 0xcccccc,
@@ -46,19 +49,23 @@ export default class Turntable extends THREE.Group {
             metalness: 1,
             wireframe: false
         });
+        tabletopMaterial.color.setHex(0xcccccc).convertSRGBToLinear();
 
         const tabletopMaterialTextured = tabletopMaterial.clone();
         const tabletopTexture = new THREE.TextureLoader().load('src/images/turntabletop.jpg');
+        tabletopTexture.encoding = THREE.sRGBEncoding;
         tabletopTexture.flipY = false;
         tabletopMaterialTextured.map = tabletopTexture;
 
         const tabletopPowerMaterial = tabletopMaterial.clone();
         const tabletopPowerMap = new THREE.TextureLoader().load('src/images/powertext.jpg');
         tabletopPowerMaterial.map = tabletopPowerMap;
+        tabletopPowerMaterial.map.encoding = THREE.sRGBEncoding;
 
         const tabletopWeightAdjMaterial = tabletopMaterial.clone();
         const tabletopWeightAdjMap = new THREE.TextureLoader().load('src/images/weighttext.jpg');
         tabletopWeightAdjMaterial.map = tabletopWeightAdjMap;
+        tabletopWeightAdjMaterial.map.encoding = THREE.sRGBEncoding;
 
         const metalMaterial = new THREE.MeshStandardMaterial({
             color: 0xcccccc,
@@ -67,9 +74,9 @@ export default class Turntable extends THREE.Group {
             metalness: 1,
             wireframe: false
         });
+        metalMaterial.color.setHex(0xcccccc).convertSRGBToLinear();
 
         const envMap = new THREE.TextureLoader().load('../../lib/three.js-r134/examples/textures/2294472375_24a3b8ef46_o.jpg');
-        //const envMap = new THREE.TextureLoader().load('src/images/wooden_lounge_env.jpg'); // TODO: Decide for HDRI Envmap
         envMap.mapping = THREE.EquirectangularReflectionMapping;
         envMap.encoding = THREE.sRGBEncoding;
         metalMaterial.envMap = envMap;
@@ -81,7 +88,9 @@ export default class Turntable extends THREE.Group {
             roughness: 0.4,
             metalness: 1
         });
+        rotaryRingMaterial.color.setHex(0xcccccc).convertSRGBToLinear();
         rotaryRingMaterial.map = new THREE.TextureLoader().load('src/images/rotaryRing_base.jpg');
+        rotaryRingMaterial.map.encoding = THREE.sRGBEncoding;
         rotaryRingMaterial.normalMap = new THREE.TextureLoader().load('src/images/rotaryRing_normal.jpg');
 
         const vinylMaterial = new THREE.MeshStandardMaterial({
@@ -90,7 +99,9 @@ export default class Turntable extends THREE.Group {
             roughness: 0.5,
             metalness: 0
         });
+        vinylMaterial.color.setHex(0xcccccc).convertSRGBToLinear();
         vinylMaterial.map = new THREE.TextureLoader().load('src/images/vinyl_basecolor.jpg');
+        vinylMaterial.map.encoding = THREE.sRGBEncoding;
         vinylMaterial.bumpMap = new THREE.TextureLoader().load('src/images/vinyl_bumpmap.jpg');
         vinylMaterial.bumpScale = 0.2;
 
@@ -101,6 +112,7 @@ export default class Turntable extends THREE.Group {
             metalness: 0,
             emissive: 0x000000
         });
+        emissivePowerMaterial.color.setHex(0x2f0000).convertSRGBToLinear();
 
         const redPlasticMaterial = new THREE.MeshPhongMaterial({
             color: 0x8b0000,
@@ -108,6 +120,7 @@ export default class Turntable extends THREE.Group {
             specular: 0x111111,
             shininess: 35
         });
+        redPlasticMaterial.color.setHex(0x8b0000).convertSRGBToLinear();
 
         const startButtonMaterial = metalMaterial.clone();
         startButtonMaterial.map = new THREE.TextureLoader().load('src/images/startstoptext.jpg');
@@ -179,6 +192,7 @@ export default class Turntable extends THREE.Group {
         corpusGeometry.computeVertexNormals();
         const corpus = new THREE.Mesh(corpusGeometry, corpusMaterial);
         corpus.name = 'Corpus';
+        corpus.castShadow = true;
         this.add(corpus);
 
         // Tabletop
@@ -192,6 +206,7 @@ export default class Turntable extends THREE.Group {
         const tabletop = new THREE.Mesh(tabletopGeometry, tabletopMaterialTextured);
         tabletop.position.set(0, 14.3875, 0); // Oberes Face bei z = 15.075
         tabletop.name = 'Tabletop';
+        tabletop.castShadow = true;
         this.add(tabletop);
 
         setVertexUvs(tabletopGeometry, 64, 46, ['x','z'], 0, 16, 0, 6.85);
@@ -222,24 +237,28 @@ export default class Turntable extends THREE.Group {
         footBackLeft.add(footTop, footMiddle, footMetal, footBottom);
         footBackLeft.position.set(-25,0,-19.25);
         footBackLeft.name = 'footBackLeft';
+        footBackLeft.castShadow = true;
         this.add(footBackLeft);
 
         // vorne links
         const footFrontLeft = footBackLeft.clone();
         footFrontLeft.position.set(-25, 0, 19.25);
         footFrontLeft.name = 'footFrontLeft';
+        footFrontLeft.castShadow = true;
         this.add(footFrontLeft);
 
         // hinten rechts
         const footBackRight = footBackLeft.clone();
         footBackRight.position.set(25, 0, -19.25);
         footBackRight.name = 'footBackRight';
+        footBackRight.castShadow = true;
         this.add(footBackRight);
 
         // vorne rechts
         const footFrontRight = footBackLeft.clone();
         footFrontRight.position.set(25, 0, 19.25);
         footFrontRight.name = 'footFrontRight';
+        footFrontRight.castShadow = true;
         this.add(footFrontRight);
 
 
@@ -253,29 +272,30 @@ export default class Turntable extends THREE.Group {
         const singlePukGeometry = CSG.BufferGeometry(singlePukCSG);
         const singlePuk = new THREE.Mesh(singlePukGeometry, metalMaterial);
         singlePuk.position.set(-27, 15.175, -19.5);
-        singlePuk.name = 'footFrontRight';
+        singlePuk.name = 'singlePuk';
         this.add(singlePuk);
 
-        // Rotary disk
+        // Rotary disc
         // -----------
 
         const rotaryDiscGeometry = new THREE.CylinderGeometry(21.3,23.4, 1.82, 64);
         const rotaryDisc = new THREE.Mesh(rotaryDiscGeometry, [rotaryRingMaterial, vinylMaterial, vinylMaterial]);
-        rotaryDisc.name = 'rotaryDiskWithRecord';
+        rotaryDisc.name = 'rotaryDiscWithRecord';
 
             // Record center
             const centerCylinder = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 16);
             const centerSphere = new THREE.SphereGeometry(0.5, 32, 32).translate(0, 0.75, 0);
-            const rotaryDiskCenterCSG = CSG.union([centerCylinder, centerSphere]);
+            const rotaryDiscCenterCSG = CSG.union([centerCylinder, centerSphere]);
 
-            const rotaryDiskCenterGeometry = CSG.BufferGeometry(rotaryDiskCenterCSG);
-            const rotaryDiskCenter = new THREE.Mesh(rotaryDiskCenterGeometry, metalMaterial);
-            rotaryDisc.add(rotaryDiskCenter);
+            const rotaryDiscCenterGeometry = CSG.BufferGeometry(rotaryDiscCenterCSG);
+            const rotaryDiscCenter = new THREE.Mesh(rotaryDiscCenterGeometry, metalMaterial);
+            rotaryDisc.add(rotaryDiscCenter);
             rotaryDisc.children[0].position.set(0, 1.66, 0);
 
         //const tempPosition = {x: rotaryDisc.position.x, y: rotaryDisc.position.y, z: rotaryDisc.position.z};
 
         rotaryDisc.position.set(-6.5, 15.075 + 1.82/2, 0);
+        rotaryDisc.rotateY(Math.PI/2);
 
 
 
@@ -286,11 +306,7 @@ export default class Turntable extends THREE.Group {
             .easing(TWEEN.Easing.Linear.None)
             .repeat(Infinity)
             .onUpdate(() => {
-                if (this.music.paused && !this.armIsOnEnd && this.crackling.paused && this.armIsOnRecord) {
-                    this.crackling.currentTime = 0;
-                    this.crackling.play();
-                    this.crackling.loop = true;
-                }
+
             })
             .onRepeat(() => {});
 
@@ -313,6 +329,7 @@ export default class Turntable extends THREE.Group {
                 z: '+0'}, 1/this.playbackRpm * 60 * 1000)
             .easing(TWEEN.Easing.Quadratic.Out)
             .onStart(() => {
+                this.isRotating = false;
                 this.crackling.pause();
             });
 
@@ -344,11 +361,19 @@ export default class Turntable extends THREE.Group {
             tweenOn: new TWEEN.Tween(actualSwitch.rotation)
                 .to(new THREE.Vector3(actualSwitch.rotation.x,
                     actualSwitch.rotation.y + THREE.MathUtils.degToRad(-90),
-                    actualSwitch.rotation.z), 125),
+                    actualSwitch.rotation.z), 125)
+                .onStart(() => {
+                    actualSwitch.userData.tweenLightOff.stop();
+                    actualSwitch.userData.tweenLightOn.start();
+                }),
             tweenOff: new TWEEN.Tween(actualSwitch.rotation)
                 .to(new THREE.Vector3(actualSwitch.rotation.x,
                     actualSwitch.rotation.y,
-                    actualSwitch.rotation.z), 125),
+                    actualSwitch.rotation.z), 125)
+                .onStart(() => {
+                    actualSwitch.userData.tweenLightOn.stop();
+                    actualSwitch.userData.tweenLightOff.start();
+                }),
             tweenLightOn: new TWEEN.Tween(emissivePowerLight.material.emissive)
                 .to(new THREE.Color(0x910000), 125),
             tweenLightOff: new TWEEN.Tween(emissivePowerLight.material.emissive)
@@ -538,7 +563,7 @@ export default class Turntable extends THREE.Group {
             needleLight.name = 'needleLightOffButton';
             const needleSpotLight = new THREE.SpotLight(0xf5ebb8, 0, 20, 5*Math.PI/180);
             needleSpotLight.position.set(0, 0, 0);
-            needleSpotLight.target = rotaryDiskCenter;
+            needleSpotLight.target = rotaryDiscCenter;
             needleLight.add(needleSpotLight);
 
             needleLight.userData = {
@@ -546,6 +571,8 @@ export default class Turntable extends THREE.Group {
                     .to(new THREE.Vector3(needleLight.position.x, needleLight.position.y, needleLight.position.z), 75)
                     .onStart(() => {
                         needleSpotLight.intensity = 0;
+                        needleLightOnButton.userData.tweenDown.stop();
+                        needleLightOnButton.userData.tweenUp.start();
                     }),
                 tweenUp: new TWEEN.Tween(needleLight.position)
                     .to(new THREE.Vector3(needleLight.position.x, needleLight.position.y + 1.5, needleLight.position.z), 75)
@@ -562,7 +589,11 @@ export default class Turntable extends THREE.Group {
             needleLightOnButton.name = 'needleLightOnButton';
             needleLightOnButton.userData = {
                 tweenDown: new TWEEN.Tween(needleLightOnButton.position)
-                    .to(new THREE.Vector3(needleLightOnButton.position.x, needleLightOnButton.position.y - 0.5, needleLightOnButton.position.z), 75),
+                    .to(new THREE.Vector3(needleLightOnButton.position.x, needleLightOnButton.position.y - 0.5, needleLightOnButton.position.z), 75)
+                    .onStart(() => {
+                        needleLight.userData.tweenDown.stop();
+                        needleLight.userData.tweenUp.start();
+                    }),
                 tweenUp: new TWEEN.Tween(needleLightOnButton.position)
                     .to(new THREE.Vector3(needleLightOnButton.position.x, needleLightOnButton.position.y, needleLightOnButton.position.z), 75)
             };
@@ -755,14 +786,21 @@ export default class Turntable extends THREE.Group {
         const tweenMoveArmPlasticSide1 = new TWEEN.Tween(horizontalJoint.rotation)
             .to({x: 0, y: THREE.MathUtils.degToRad(-25.2), z: 0}, 1500)
             .easing(TWEEN.Easing.Quadratic.InOut);
+
         const tweenMoveArmPlasticSide2 = new TWEEN.Tween(horizontalJoint.rotation)
             .to({x: plasticParkPosition.x, y: plasticParkPosition.y, z: plasticParkPosition.z}, 1500)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .delay(1000);
 
+        const tweenRollingArmPlastic = new TWEEN.Tween(horizontalJoint.rotation)
+            .to(new THREE.Vector3(
+                horizontalJoint.rotation.x + THREE.MathUtils.degToRad(2.4), horizontalJoint.rotation.y + THREE.MathUtils.degToRad(-46), horizontalJoint.rotation.z
+            ), 35000);
+
         horizontalJoint.userData = {
             tweenMoveArmPlasticSide1: tweenMoveArmPlasticSide1,
-            tweenMoveArmPlasticSide2: tweenMoveArmPlasticSide2
+            tweenMoveArmPlasticSide2: tweenMoveArmPlasticSide2,
+            tweenRollingArmPlastic: tweenRollingArmPlastic
         };
 
         this.add(horizontalJoint);
@@ -896,14 +934,19 @@ export default class Turntable extends THREE.Group {
             ), 35000)
             .onStart(() => {
                 this.music.play();
+                horizontalJoint.userData.tweenRollingArmPlastic.start();
             })
             .onStop(() => {
                 this.music.pause();
+                horizontalJoint.userData.tweenRollingArmPlastic.stop();
             })
             .onUpdate(() => {
                 if (!this.isRotating) {
                     arm.userData.tweenRollingSide.stop();
                     this.crackling.pause();
+                } else if (this.isRotating && this.music.paused) {
+                    this.crackling.play();
+                    this.crackling.loop = true;
                 }
             })
             .onComplete(() => {
@@ -924,14 +967,14 @@ export default class Turntable extends THREE.Group {
                 if (this.isRotating){
                     arm.userData.tweenRollingSide.start();
                 }
+                this.armIsOnRecord = true;
             });
         const tweenToRecordSide = new TWEEN.Tween(arm.rotation)
             .to(new THREE.Vector3(
                 arm.rotation.x, arm.rotation.y + THREE.MathUtils.degToRad(-25.3), arm.rotation.z
             ), 1500)
             .chain(tweenToRecordDown)
-            .easing(TWEEN.Easing.Quadratic.InOut)
-            .onUpdate(()=>{});
+            .easing(TWEEN.Easing.Quadratic.InOut);
 
         const tweenFromRecordSide = new TWEEN.Tween(arm.rotation)
             .to(new THREE.Vector3(
@@ -940,15 +983,32 @@ export default class Turntable extends THREE.Group {
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onComplete(() => {
                 arm.rotation.set(0, 0, 0);
+                this.armIsOnRecord = false;
             });
 
-        const tweenFromRecordUp = new TWEEN.Tween(arm.rotation)
+        const tweenFromRecordUpStart = new TWEEN.Tween(arm.rotation)
             .to(new THREE.Vector3(
                 arm.rotation.x, arm.rotation.y + THREE.MathUtils.degToRad(-25.3), arm.rotation.z
             ), 1000)
             .chain(tweenFromRecordSide)
             .easing(TWEEN.Easing.Quadratic.InOut)
             .onStart(() => {
+                this.armIsOnEnd = false;
+                arm.userData.tweenRollingSide.stop();
+                this.music.currentTime = 0;
+                this.crackling.pause();
+                this.crackling.currentTime = 0;
+            });
+
+        const tweenFromRecordUpEnd = new TWEEN.Tween(arm.rotation)
+            .to(new THREE.Vector3(
+                arm.rotation.x, arm.rotation.y + THREE.MathUtils.degToRad(-46), arm.rotation.z
+            ), 1000)
+            .chain(tweenFromRecordSide)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+            .onStart(() => {
+                this.armIsOnEnd = false;
+                arm.userData.tweenRollingSide.stop();
                 this.music.currentTime = 0;
                 this.crackling.pause();
                 this.crackling.currentTime = 0;
@@ -958,7 +1018,8 @@ export default class Turntable extends THREE.Group {
             tweenToRecordSide: tweenToRecordSide,
             tweenToRecordDown: tweenToRecordDown,
             tweenFromRecordSide: tweenFromRecordSide,
-            tweenFromRecordUp: tweenFromRecordUp,
+            tweenFromRecordUpStart: tweenFromRecordUpStart,
+            tweenFromRecordUpEnd: tweenFromRecordUpEnd,
             tweenRollingSide: tweenRollingSide
         };
 

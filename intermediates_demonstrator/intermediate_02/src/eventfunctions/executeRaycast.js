@@ -12,6 +12,10 @@ export function executeRaycast() {
   if (intersects.length > 0) {
     let firstHit = intersects[0].object;
 
+    // -----------------------------------------------------------------------------
+    // TURNTABLE
+    // -----------------------------------------------------------------------------
+
     if (firstHit.parent.name === "needleHead" || firstHit.parent.name === "arm") {
       document.getElementById('element').innerText = "Clicked last: arm";
     } else if (firstHit.name !== "") {
@@ -24,20 +28,16 @@ export function executeRaycast() {
       turntable.isPoweredOn = !turntable.isPoweredOn;
       if (turntable.isPoweredOn) {
         powerSwitch.userData.tweenOff.stop();
-        powerSwitch.userData.tweenLightOff.stop();
         powerSwitch.userData.tweenOn.start();
-        powerSwitch.userData.tweenLightOn.start();
       } else {
         powerSwitch.userData.tweenOn.stop();
-        powerSwitch.userData.tweenLightOn.stop();
         powerSwitch.userData.tweenOff.start();
-        powerSwitch.userData.tweenLightOff.start();
 
         // Turn off rotation, when power is off.
         if (turntable.isRotating){
-          turntable.getObjectByName('rotaryDiskWithRecord').userData.tweenStart.stop();
-          turntable.getObjectByName('rotaryDiskWithRecord').userData.tweenRotate.stop();
-          turntable.getObjectByName('rotaryDiskWithRecord').userData.tweenStop.start();
+          turntable.getObjectByName('rotaryDiscWithRecord').userData.tweenStart.stop();
+          turntable.getObjectByName('rotaryDiscWithRecord').userData.tweenRotate.stop();
+          turntable.getObjectByName('rotaryDiscWithRecord').userData.tweenStop.start();
           turntable.isRotating = false;
         }
       }
@@ -46,7 +46,7 @@ export function executeRaycast() {
     else if (firstHit.name === 'startStopButton') {
       const startStopButton = firstHit;
       const turntable = startStopButton.parent;
-      const rotaryDisc = turntable.getObjectByName('rotaryDiskWithRecord');
+      const rotaryDisc = turntable.getObjectByName('rotaryDiscWithRecord');
       startStopButton.userData.tweenPush.stop(); // interrupt first
       startStopButton.userData.tweenPush.start();
       if (turntable.isPoweredOn === true) {
@@ -82,12 +82,9 @@ export function executeRaycast() {
     else if (firstHit.name === 'needleLightOnButton') {
       const needleLightOnButton = firstHit;
       const turntable = needleLightOnButton.parent.parent;
-      const needleLightOffButton = turntable.getObjectByName('needleLightOffButton');
       if (!turntable.needleLightIsOn) {
         turntable.needleLightIsOn = true;
-        needleLightOffButton.userData.tweenDown.stop();
         needleLightOnButton.userData.tweenUp.stop();
-        needleLightOffButton.userData.tweenUp.start();
         needleLightOnButton.userData.tweenDown.start();
       }
     }
@@ -95,19 +92,19 @@ export function executeRaycast() {
     else if (firstHit.name === 'needleLightOffButton') {
       const needleLightOffButton = firstHit;
       const turntable = needleLightOffButton.parent.parent;
-      const needleLightOnButton = turntable.getObjectByName('needleLightOnButton');
       if (turntable.needleLightIsOn) {
         turntable.needleLightIsOn = false;
         needleLightOffButton.userData.tweenUp.stop();
-        needleLightOnButton.userData.tweenDown.stop();
         needleLightOffButton.userData.tweenDown.start();
-        needleLightOnButton.userData.tweenUp.start();
       }
     }
 
     else if (firstHit.name === 'speedSlider') {
       const speedSlider = firstHit;
-      //firstHit.position
+      // window.onmousedown = () => {
+      //
+      //   window.orbitControls.enabled = false;
+      // };
     }
 
     else if (firstHit.parent.name === 'needleHead' || firstHit.parent.name === 'arm') {
@@ -116,7 +113,8 @@ export function executeRaycast() {
       const turntable = arm.parent;
       if (!(arm.userData.tweenFromRecordSide.isPlaying() ||
           arm.userData.tweenToRecordSide.isPlaying() ||
-          arm.userData.tweenFromRecordUp.isPlaying() ||
+          arm.userData.tweenFromRecordUpStart.isPlaying() ||
+          arm.userData.tweenFromRecordUpEnd.isPlaying() ||
           arm.userData.tweenToRecordDown.isPlaying() ||
           arm.userData.tweenRollingSide.isPlaying())){
 
@@ -128,12 +126,179 @@ export function executeRaycast() {
         } else {
           arm.userData.tweenToRecordSide.stop();
           horizontalJoint.userData.tweenMoveArmPlasticSide1.stop();
-          arm.userData.tweenFromRecordUp.start();
+          if (turntable.armIsOnEnd) {
+            arm.userData.tweenFromRecordUpEnd.start();
+          } else {
+            arm.userData.tweenFromRecordUpStart.start();
+          }
           horizontalJoint.userData.tweenMoveArmPlasticSide2.start();
         }
-        setTimeout(() => {
-          turntable.armIsOnRecord = !turntable.armIsOnRecord;
-        }, 2500);
+      }
+
+    }
+
+    // -----------------------------------------------------------------------------
+    // TURNTABLE FROM FILE
+    // -----------------------------------------------------------------------------
+
+    if (firstHit.name === 'powerSwitch_gltf') {
+      const powerSwitch = firstHit.userData;
+      const emission = firstHit.parent.children[0];
+      const rotaryDisc = firstHit.parent.parent.parent.parent.getObjectByName('rotaryDisc__gltf');
+      const record = firstHit.parent.parent.parent.getObjectByName('vinyl_gltf');
+
+      powerSwitch.isPoweredOn = !powerSwitch.isPoweredOn;
+
+      if (powerSwitch.isPoweredOn) {
+        powerSwitch.animations.get('powerSwitchOff').stop();
+        powerSwitch.animations.get('powerSwitchOn').play();
+        emission.userData.emissionOff.stop();
+        emission.userData.emissionOn.start();
+      } else {
+        powerSwitch.animations.get('powerSwitchOn').stop();
+        powerSwitch.animations.get('powerSwitchOff').play();
+        emission.userData.emissionOn.stop();
+        emission.userData.emissionOff.start();
+
+
+        if (powerSwitch.isRotating){
+          rotaryDisc.animations.startRotation.stop();
+          rotaryDisc.animations.rotate.stop();
+          rotaryDisc.animations.endRotation.start();
+          record.userData.startRotation.stop();
+          record.userData.rotate.stop();
+          record.userData.endRotation.start();
+          powerSwitch.isRotating = false;
+        }
+      }
+    }
+    else if (firstHit.name === 'startStop_gltf') {
+      const startStopButton = firstHit.userData;
+      const rotaryDisc = firstHit.parent.parent.parent.parent.getObjectByName('rotaryDisc__gltf');
+      const record = firstHit.parent.parent.parent.getObjectByName('vinyl_gltf');
+      const arm = window.scene.getObjectByName('arm_group_gltf');
+
+      startStopButton.animations.get('pushStartStop').stop(); // interrupt first
+      startStopButton.animations.get('pushStartStop').play();
+
+      if (startStopButton.isPoweredOn) {
+        startStopButton.isRotating = !startStopButton.isRotating;
+
+        if (startStopButton.isRotating) {
+          rotaryDisc.animations.rotate.stop();
+          rotaryDisc.animations.endRotation.stop();
+          rotaryDisc.animations.startRotation.start();
+          record.userData.rotate.stop();
+          record.userData.endRotation.stop();
+          record.userData.startRotation.start();
+
+          if (record.userData.armIsOnRecord && !arm.userData.tweenToRecordSide.isPlaying()) {
+            arm.userData.tweenRollingSide.start();
+          }
+        } else {
+          rotaryDisc.animations.startRotation.stop();
+          rotaryDisc.animations.rotate.stop();
+          rotaryDisc.animations.endRotation.start();
+          record.userData.startRotation.stop();
+          record.userData.rotate.stop();
+          record.userData.endRotation.start();
+
+          if (record.userData.armIsOnRecord && arm.userData.tweenToRecordSide.isPlaying()) {
+            arm.userData.tweenRollingSide.stop();
+          }
+
+
+        }
+      }
+    }
+
+    else if (firstHit.name === '45rpm_gltf') {
+      firstHit.userData.animations.get('push45rpm').stop(); // interrupt first
+      firstHit.userData.animations.get('push45rpm').play();
+      window.scene.getObjectByName('turntableFromFile').music.playbackRate = 1.36;
+    }
+
+    else if (firstHit.name === '33rpm_gltf') {
+      firstHit.userData.animations.get('push33rpm').stop(); // interrupt first
+      firstHit.userData.animations.get('push33rpm').play();
+      window.scene.getObjectByName('turntableFromFile').music.playbackRate = 1;
+    }
+
+    else if (firstHit.name === 'needleLightOnButton_gltf') {
+      const needleLightOnButton = firstHit.userData;
+      if (!needleLightOnButton.needleLightIsOn) {
+        needleLightOnButton.needleLightIsOn = true;
+        needleLightOnButton.animations.get('buttonUp').stop();
+        needleLightOnButton.animations.get('buttonDown').play();
+        needleLightOnButton.animations.get('lightDown').stop();
+        needleLightOnButton.animations.get('lightUp').play();
+      }
+    }
+
+    else if (firstHit.name === 'needleLightOffButton_gltf') {
+      const needleLightOffButton = firstHit.userData;
+      if (needleLightOffButton.needleLightIsOn) {
+        needleLightOffButton.needleLightIsOn = false;
+        needleLightOffButton.animations.get('buttonDown').stop();
+        needleLightOffButton.animations.get('buttonUp').play();
+        needleLightOffButton.animations.get('lightUp').stop();
+        needleLightOffButton.animations.get('lightDown').play();
+      }
+    }
+
+    else if (firstHit.name === 'needle_msh_metal_mat1_0' ||
+        // TODO: Manual Tweens for Arm
+        firstHit.name === 'needle_system_msh_needle_mat_0' ||
+        firstHit.name === 'armMetal_gltf' ||
+        firstHit.name === 'armWeightPlastic_gltf') {
+
+      // if (!(firstHit.userData.animations.get('armToRecord').isRunning() ||
+      //     firstHit.userData.animations.get('armFromRecord').isRunning())){
+      //
+      //   if (!firstHit.userData.armIsOnRecord) {
+      //     firstHit.userData.animations.get('armFromRecord').stop();
+      //     firstHit.userData.animations.get('armToRecord').play();
+      //     firstHit.userData.animations.get('turnFromRecord').stop();
+      //     firstHit.userData.animations.get('turnToRecord').play();
+      //     setTimeout(() => {
+      //       firstHit.userData.armIsOnRecord = true;
+      //     }, 2500);
+      //   } else {
+      //     firstHit.userData.animations.get('armToRecord').stop();
+      //     firstHit.userData.animations.get('armFromRecord').play();
+      //     firstHit.userData.animations.get('turnToRecord').stop();
+      //     firstHit.userData.animations.get('turnFromRecord').play();
+      //     setTimeout(() => {
+      //       firstHit.userData.armIsOnRecord = false;
+      //     }, 2500);
+      //   }
+      // }
+
+      const arm = window.scene.getObjectByName('arm_group_gltf');
+      const horizontalJoint = window.scene.getObjectByName('armHorizontalJoint_gltf');
+
+      if (!(arm.userData.tweenFromRecordSide.isPlaying() ||
+          arm.userData.tweenToRecordSide.isPlaying() ||
+          arm.userData.tweenFromRecordUpStart.isPlaying() ||
+          arm.userData.tweenFromRecordUpEnd.isPlaying() ||
+          arm.userData.tweenToRecordDown.isPlaying() ||
+          arm.userData.tweenRollingSide.isPlaying())){
+
+        if (!arm.userData.armIsOnRecord) {
+          arm.userData.tweenFromRecordSide.stop();
+          horizontalJoint.userData.tweenMoveArmPlasticSide2.stop();
+          arm.userData.tweenToRecordSide.start();
+          horizontalJoint.userData.tweenMoveArmPlasticSide1.start();
+        } else {
+          arm.userData.tweenToRecordSide.stop();
+          horizontalJoint.userData.tweenMoveArmPlasticSide1.stop();
+          if (arm.userData.armIsOnEnd) {
+            arm.userData.tweenFromRecordUpEnd.start();
+          } else {
+            arm.userData.tweenFromRecordUpStart.start();
+          }
+          horizontalJoint.userData.tweenMoveArmPlasticSide2.start();
+        }
       }
 
     }
