@@ -4,6 +4,7 @@ import * as CONTROLS from '../../../lib/three.js-r134/examples/jsm/controls/Orbi
 import * as DAT from '../../../lib/dat.gui-0.7.7/build/dat.gui.module.js';
 import * as TWEEN from '../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 import * as STATS from '../../../lib/three.js-r134/examples/jsm/libs/stats.module.js';
+import { PositionalAudioHelper } from '../../../lib/three.js-r134/examples/jsm/helpers/PositionalAudioHelper.js';
 
 
 
@@ -39,6 +40,8 @@ function main() {
 
     window.camera.position.set(-16, 240, 175);
     window.camera.lookAt(0, 4.927865225327892, -4.243226393111859);
+    //window.audioListener = new THREE.AudioListener();
+    //window.camera.add(window.audioListener);
 
     window.renderer = new THREE.WebGLRenderer({antialias: true}); // rendert die Szene
     window.renderer.setSize(window.innerWidth, window.innerHeight);         // Größe Framebuffer
@@ -46,8 +49,8 @@ function main() {
     window.renderer.shadowMap.enabled = true;                               // Schattenrendering aktivieren
     window.renderer.outputEncoding = THREE.sRGBEncoding;
 
-    window.physics = new Physics(true);
-    window.physics.setup(0, -200, 0, 1/120, true); // Gravity X, Y, Z; Zeitschrittweite; Boden
+    window.physics = new Physics(false);
+    window.physics.setup(0, -200, 0, 1/500, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
 
     document.getElementById('3d_content').appendChild(window.renderer.domElement);
 
@@ -64,20 +67,31 @@ function main() {
     turntableFromFile.name = 'turntableFromFile';
     turntableFromFile.position.set(-33, 67.2, 0);
     //turntableFromFile.rotation.set();
-    //turntableFromFile.addPhysics(); // TODO: enable when physics implemented
+    turntableFromFile.addPhysics();
     window.scene.add(turntableFromFile);
 
     // Turntable
     const turntable = new Turntable();
     turntable.name = 'turntable';
-    turntable.position.set(33, 67.2, 0);
+    turntable.position.set(33, 68, 0);
+    turntable.addPhysics();
     window.scene.add(turntable);
+
+    //const positionalAudio = new THREE.Audio(window.audioListener);
+    //positionalAudio.setMediaElementSource(turntable.music);
+    //positionalAudio.setRefDistance(1);
+    //positionalAudio.setDirectionalCone(180, 230, 0.1);
+
+    //const posAudioHelper = new PositionalAudioHelper(window.positionalAudio, 0.1 );
+    //positionalAudio.add( window.posAudioHelper );
 
     // Cabinet
     const cabinet = new CabinetFromFile();
-    cabinet.scale.set(1.6, 1.6, 1.6);
-    cabinet.rotateY(180*Math.PI/180);
-    cabinet.position.set(0, 33.112442475226764,34);
+    cabinet.name = 'cabinet';
+    cabinet.scale.set(0.8, 0.8, 0.8);
+    cabinet.position.set(-6, 0,5);
+    cabinet.addPhysics();
+    //cabinet.rotateY(180*Math.PI/180);
     window.scene.add(cabinet);
 
     // Speaker
@@ -86,12 +100,14 @@ function main() {
     speakerLeft.rotateY(105*Math.PI/180);
     speakerLeft.position.set(-93, 92.1, 0);
     //speakerLeft.add(positionalAudio);
+    speakerLeft.addPhysics();
     window.scene.add(speakerLeft);
 
     const speakerRight = speakerLeft.clone();
     speakerRight.rotateY(-30*Math.PI/180);
     speakerRight.position.set(88, 92.1, 0);
     //speakerRight.add(positionalAudio);
+    speakerRight.addPhysics();
     window.scene.add(speakerRight);
 
     // Lights

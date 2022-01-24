@@ -4,7 +4,7 @@ export default class Floor extends THREE.Group {
 
     constructor() {
         super();
-        const floorGeometry = new THREE.PlaneGeometry(400, 400);
+        const floorGeometry = new THREE.PlaneGeometry(1000, 1000);
         const floorMaterial = new THREE.MeshStandardMaterial({color: 0xaaaaaa, roughness: 0.7});
         floorMaterial.color.setHex(0xffffff).convertSRGBToLinear();
 

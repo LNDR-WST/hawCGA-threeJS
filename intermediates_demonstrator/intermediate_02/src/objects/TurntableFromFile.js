@@ -32,7 +32,7 @@ export default class TurntableFromFile extends THREE.Group {
 
             gltf.scene.traverse(function(child) {
 
-                console.log("Name: " + child.name);
+                //console.log("Name: " + child.name);
 
 
                 if (child.isMesh) {
@@ -255,7 +255,7 @@ export default class TurntableFromFile extends THREE.Group {
                 action.clampWhenFinished = true;
                 action.setLoop(THREE.LoopOnce);
                 thisTurntable.animations.set(gltf.animations[i].name, action);
-                console.log("Animation: " + gltf.animations[i].name);
+                //console.log("Animation: " + gltf.animations[i].name);
             }
 
             thisTurntable.add(gltf.scene);
@@ -263,15 +263,14 @@ export default class TurntableFromFile extends THREE.Group {
         });
     }
 
-    // TODO: set physics when physics engine is implemented
-    // addPhysics() {
-    //     if(this.loadingDone === false) {
-    //         window.setTimeout(this.addPhysics.bind(this), 100);
-    //     } else {
-    //         const boundingBox = new THREE.Box3().setFromObject(this);
-    //         const boundingBoxSize = new THREE.Vector3();
-    //         boundingBox.getSize(boundingBoxSize);
-    //         window.physics.addBox(this, 10, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0);
-    //     }
-    // }
+    addPhysics() {
+        if(this.loadingDone === false) {
+            window.setTimeout(this.addPhysics.bind(this), 100);
+        } else {
+            const boundingBox = new THREE.Box3().setFromObject(this);
+            const boundingBoxSize = new THREE.Vector3();
+            boundingBox.getSize(boundingBoxSize);
+            window.physics.addBox(this, 6, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0);
+        }
+    }
 }

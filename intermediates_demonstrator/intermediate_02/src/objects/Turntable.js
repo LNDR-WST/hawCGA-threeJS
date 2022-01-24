@@ -1286,6 +1286,19 @@ export default class Turntable extends THREE.Group {
     }
 
 
+    addPhysics() {
+        if(this.loadingDone === false) {
+            window.setTimeout(this.addPhysics.bind(this), 100);
+        } else {
+            const boundingBox = new THREE.Box3().setFromObject(this);
+            const boundingBoxSize = new THREE.Vector3();
+            boundingBox.getSize(boundingBoxSize);
+            window.physics.addBox(this, 6, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, true);
+        }
+    }
+
 }
+
+
 
 // Translate on Geometry moves origin; Translate (position.set) on Object moves position (not origin)
