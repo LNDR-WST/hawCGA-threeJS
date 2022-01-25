@@ -15,8 +15,8 @@ export default class SpeakerFromFile extends THREE.Group {
         this.soundTFF = soundTurntableFF;
         this.cracklingTFF = cracklingTFF;
 
-        const helper = new PositionalAudioHelper( soundTurntable, 2 );
-        soundTurntable.add( helper );
+        //const helper = new PositionalAudioHelper(soundTurntable, 2 );
+        //soundTurntable.add(helper);
 
         this.load(this);
     }
@@ -30,16 +30,15 @@ export default class SpeakerFromFile extends THREE.Group {
 
             gltf.scene.traverse((object) => {
                if (object.isMesh) {
-                   if (object.name === 'low') {
-                       object.add(thisSpeaker.soundT, thisSpeaker.soundTFF, thisSpeaker.cracklingT, thisSpeaker.cracklingTFF);
-                   }
-
                    object.castShadow = true;
                    object.receiveShadow = true;
                }
             });
 
-            thisSpeaker.add(gltf.scene);
+            const speaker = gltf.scene;
+            speaker.add(thisSpeaker.soundT, thisSpeaker.soundTFF, thisSpeaker.cracklingT, thisSpeaker.cracklingTFF);
+
+            thisSpeaker.add(speaker);
             thisSpeaker.loadingDone = true;
         });
     }

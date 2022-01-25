@@ -151,8 +151,8 @@ export default class TurntableFromFile extends THREE.Group {
                             } else if (thisTurntable.isRotating && !thisTurntable.speakerL.soundTFF.isPlaying && !thisTurntable.speakerR.soundTFF.isPlaying) {
                                 thisTurntable.speakerL.cracklingTFF.play();
                                 thisTurntable.speakerR.cracklingTFF.play();
-                                thisTurntable.speakerL.cracklingTFF.loop = true;
-                                thisTurntable.speakerR.cracklingTFF.loop = true;
+                                thisTurntable.speakerL.cracklingTFF.setLoop(true);
+                                thisTurntable.speakerR.cracklingTFF.setLoop(true);
                             }
                         })
                         .onComplete(() => {
@@ -160,10 +160,10 @@ export default class TurntableFromFile extends THREE.Group {
                             if (thisTurntable.isRotating && !thisTurntable.speakerL.cracklingT.isPlaying && !thisTurntable.speakerR.cracklingT.isPlaying) {
                                 thisTurntable.speakerL.cracklingTFF.currentTime = 0;
                                 thisTurntable.speakerL.cracklingTFF.play();
-                                thisTurntable.speakerL.cracklingTFF.loop = true;
+                                thisTurntable.speakerL.cracklingTFF.setLoop(true);
                                 thisTurntable.speakerR.cracklingTFF.currentTime = 0;
                                 thisTurntable.speakerR.cracklingTFF.play();
-                                thisTurntable.speakerR.cracklingTFF.loop = true;
+                                thisTurntable.speakerR.cracklingTFF.setLoop(true);
                             }
                         });
 

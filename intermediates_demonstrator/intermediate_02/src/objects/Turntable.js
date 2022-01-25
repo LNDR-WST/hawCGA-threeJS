@@ -957,8 +957,8 @@ export default class Turntable extends THREE.Group {
                 } else if (this.isRotating && !this.speakerL.soundT.isPlaying && !this.speakerR.soundT.isPlaying) {
                     this.speakerL.cracklingT.play();
                     this.speakerR.cracklingT.play();
-                    this.speakerL.cracklingT.loop = true;
-                    this.speakerR.cracklingT.loop = true;
+                    this.speakerL.cracklingT.setLoop(true);
+                    this.speakerR.cracklingT.setLoop(true);
                 }
             })
             .onComplete(() => {
@@ -966,10 +966,10 @@ export default class Turntable extends THREE.Group {
                 if (this.isRotating && !this.speakerL.cracklingT.isPlaying && !this.speakerR.cracklingT.isPlaying) {
                     this.speakerL.cracklingT.currentTime = 0;
                     this.speakerL.cracklingT.play();
-                    this.speakerL.cracklingT.loop = true;
+                    this.speakerL.cracklingT.setLoop(true);
                     this.speakerR.cracklingT.currentTime = 0;
                     this.speakerR.cracklingT.play();
-                    this.speakerR.cracklingT.loop = true;
+                    this.speakerR.cracklingT.setLoop(true);
                 }
             });
 
