@@ -40,8 +40,27 @@ function main() {
 
     window.camera.position.set(-16, 240, 175);
     window.camera.lookAt(0, 4.927865225327892, -4.243226393111859);
-    //window.audioListener = new THREE.AudioListener();
-    //window.camera.add(window.audioListener);
+
+    // -----------------------------------------------
+    const listener = new THREE.AudioListener();
+    window.camera.add(listener);
+
+    // const sound = new THREE.PositionalAudio(listener);
+    // const audioLoader = new THREE.AudioLoader();
+    // audioLoader.load( 'src/music/music.mp3', function( buffer ) {
+    //     sound.setBuffer( buffer );
+    //     sound.setRefDistance(20);
+    //     sound.setDirectionalCone( 180, 230, 0.1 );
+    //     sound.setLoop(true);
+    //     sound.setVolume(1);
+    //     //sound.play();
+    // });
+    // const sphere = new THREE.SphereGeometry( 20, 32, 16 );
+    // const material = new THREE.MeshPhongMaterial( { color: 0xff2200 } );
+    // const mesh = new THREE.Mesh( sphere, material );
+    // window.scene.add( mesh );
+    // mesh.add( sound ); // needs to be added to mesh?
+    // -----------------------------------------------
 
     window.renderer = new THREE.WebGLRenderer({antialias: true}); // rendert die Szene
     window.renderer.setSize(window.innerWidth, window.innerHeight);         // Größe Framebuffer
@@ -62,8 +81,96 @@ function main() {
     const floor = new Floor();
     window.scene.add(floor);
 
+    // Speaker
+    const soundTurntable_R = new THREE.PositionalAudio(listener);
+    const soundTurntable_L = new THREE.PositionalAudio(listener);
+    const cracklingT_R = new THREE.PositionalAudio(listener);
+    const cracklingT_L = new THREE.PositionalAudio(listener);
+
+    const soundTurntableFF_R = new THREE.PositionalAudio(listener);
+    const soundTurntableFF_L = new THREE.PositionalAudio(listener);
+    const cracklingTFF_R = new THREE.PositionalAudio(listener);
+    const cracklingTFF_L = new THREE.PositionalAudio(listener);
+
+    const audioLoaderT = new THREE.AudioLoader();
+    const audioLoaderTFF = new THREE.AudioLoader();
+    const coneInnerAngle = 180;
+    const coneOuterAngle = 230;
+    const coneOuterGain = 0.1;
+    audioLoaderT.load( 'src/music/music.mp3', function( buffer ) {
+        soundTurntable_L.setBuffer( buffer );
+        soundTurntable_L.setRefDistance(20);
+        soundTurntable_L.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        soundTurntable_L.setLoop(false);
+        soundTurntable_L.setVolume(1);
+    });
+    audioLoaderT.load( 'src/music/music.mp3', function( buffer ) {
+        soundTurntable_R.setBuffer( buffer );
+        soundTurntable_R.setRefDistance(20);
+        soundTurntable_R.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        soundTurntable_R.setLoop(false);
+        soundTurntable_R.setVolume(1);
+    });
+    audioLoaderT.load( 'src/music/crackling.mp3', function( buffer ) {
+        cracklingT_L.setBuffer( buffer );
+        cracklingT_L.setRefDistance(20);
+        cracklingT_L.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        cracklingT_L.setLoop(true);
+        cracklingT_L.setVolume(0.5);
+    });
+    audioLoaderT.load( 'src/music/crackling.mp3', function( buffer ) {
+        cracklingT_R.setBuffer( buffer );
+        cracklingT_R.setRefDistance(20);
+        cracklingT_R.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        cracklingT_R.setLoop(true);
+        cracklingT_R.setVolume(0.5);
+    });
+
+    audioLoaderTFF.load( 'src/music/music.mp3', function( buffer ) {
+        soundTurntableFF_L.setBuffer( buffer );
+        soundTurntableFF_L.setRefDistance(20);
+        soundTurntableFF_L.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        soundTurntableFF_L.setLoop(false);
+        soundTurntableFF_L.setVolume(1);
+    });
+    audioLoaderTFF.load( 'src/music/music.mp3', function( buffer ) {
+        soundTurntableFF_R.setBuffer( buffer );
+        soundTurntableFF_R.setRefDistance(20);
+        soundTurntableFF_R.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        soundTurntableFF_R.setLoop(false);
+        soundTurntableFF_R.setVolume(1);
+    });
+    audioLoaderTFF.load( 'src/music/crackling.mp3', function( buffer ) {
+        cracklingTFF_L.setBuffer( buffer );
+        cracklingTFF_L.setRefDistance(20);
+        cracklingTFF_L.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        cracklingTFF_L.setLoop(true);
+        cracklingTFF_L.setVolume(0.5);
+    });
+    audioLoaderTFF.load( 'src/music/crackling.mp3', function( buffer ) {
+        cracklingTFF_R.setBuffer( buffer );
+        cracklingTFF_R.setRefDistance(20);
+        cracklingTFF_R.setDirectionalCone( coneInnerAngle, coneOuterAngle, coneOuterGain);
+        cracklingTFF_R.setLoop(true);
+        cracklingTFF_R.setVolume(0.5);
+    });
+
+    const speakerLeft = new SpeakerFromFile(soundTurntable_L, soundTurntableFF_L, cracklingT_L, cracklingTFF_L);
+    speakerLeft.scale.set(20, 20, 20);
+    speakerLeft.rotateY(105*Math.PI/180);
+    speakerLeft.position.set(-93, 92.1, 0);
+    speakerLeft.addPhysics();
+    window.scene.add(speakerLeft);
+
+    const speakerRight = new SpeakerFromFile(soundTurntable_R, soundTurntableFF_R, cracklingT_R, cracklingTFF_R);
+    speakerRight.scale.set(20, 20, 20);
+    speakerRight.rotateY(75*Math.PI/180);
+    speakerRight.position.set(88, 92.1, 0);
+    speakerRight.addPhysics();
+    window.scene.add(speakerRight);
+
     // TurntableFromFile
-    let turntableFromFile = new TurntableFromFile();
+    let turntableFromFile = new TurntableFromFile(speakerLeft, speakerRight);
     turntableFromFile.name = 'turntableFromFile';
     turntableFromFile.position.set(-33, 67.2, 0);
     //turntableFromFile.rotation.set();
@@ -71,7 +178,7 @@ function main() {
     window.scene.add(turntableFromFile);
 
     // Turntable
-    const turntable = new Turntable();
+    const turntable = new Turntable(speakerLeft, speakerRight);
     turntable.name = 'turntable';
     turntable.position.set(33, 68, 0);
     turntable.addPhysics();
@@ -94,21 +201,6 @@ function main() {
     //cabinet.rotateY(180*Math.PI/180);
     window.scene.add(cabinet);
 
-    // Speaker
-    const speakerLeft = new SpeakerFromFile();
-    speakerLeft.scale.set(20, 20, 20);
-    speakerLeft.rotateY(105*Math.PI/180);
-    speakerLeft.position.set(-93, 92.1, 0);
-    //speakerLeft.add(positionalAudio);
-    speakerLeft.addPhysics();
-    window.scene.add(speakerLeft);
-
-    const speakerRight = speakerLeft.clone();
-    speakerRight.rotateY(-30*Math.PI/180);
-    speakerRight.position.set(88, 92.1, 0);
-    //speakerRight.add(positionalAudio);
-    speakerRight.addPhysics();
-    window.scene.add(speakerRight);
 
     // Lights
 

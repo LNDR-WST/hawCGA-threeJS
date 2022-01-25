@@ -4,7 +4,7 @@ import * as TWEEN from '../../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 
 export default class TurntableFromFile extends THREE.Group {
 
-    constructor() {
+    constructor(speakerL, speakerR) {
         super();
         this.gltfLoader = new GLTFLoader();
         this.animationMixer = null;
@@ -16,9 +16,13 @@ export default class TurntableFromFile extends THREE.Group {
         this.armIsOnEnd = false;
         this.needleLightIsOn = false;
         this.playbackRpm = 33;
-        this.music = new Audio('src/music/music.mp3');
-        this.crackling = new Audio('src/music/crackling.mp3');
-        this.crackling.volume = 0.2;
+
+        this.speakerL = speakerL;
+        this.speakerR = speakerR;
+
+        //this.music = new Audio('src/music/music.mp3');
+        //this.crackling = new Audio('src/music/crackling.mp3');
+        //this.crackling.volume = 0.2;
 
         this.loadingDone = false;
 
@@ -70,7 +74,8 @@ export default class TurntableFromFile extends THREE.Group {
                             .easing(TWEEN.Easing.Quadratic.Out)
                             .onStart(() => {
                                 thisTurntable.isRotating = false;
-                                thisTurntable.crackling.pause();
+                                thisTurntable.speakerL.cracklingTFF.pause();
+                                thisTurntable.speakerR.cracklingTFF.pause();
                             });
 
                         child.animations.rotate = tweenRotate;
@@ -99,7 +104,8 @@ export default class TurntableFromFile extends THREE.Group {
                             .easing(TWEEN.Easing.Quadratic.Out)
                             .onStart(() => {
                                 thisTurntable.isRotating = false;
-                                thisTurntable.crackling.pause();
+                                thisTurntable.speakerL.cracklingTFF.pause();
+                                thisTurntable.speakerR.cracklingTFF.pause();
                             });
 
                         child.userData.rotate = tweenRotate;
@@ -128,28 +134,36 @@ export default class TurntableFromFile extends THREE.Group {
                             child.rotation.x + THREE.MathUtils.degToRad(2.4), child.rotation.y, child.rotation.z + THREE.MathUtils.degToRad(-38)
                         ), 35000)
                         .onStart(() => {
-                            thisTurntable.music.play();
+                            thisTurntable.speakerL.soundTFF.play();
+                            thisTurntable.speakerR.soundTFF.play();
                             window.scene.getObjectByName('armHorizontalJoint_gltf').userData.tweenRollingArmPlastic.start();
                         })
                         .onStop(() => {
-                            thisTurntable.music.pause();
+                            thisTurntable.speakerL.soundTFF.pause();
+                            thisTurntable.speakerR.soundTFF.pause();
                             window.scene.getObjectByName('armHorizontalJoint_gltf').userData.tweenRollingArmPlastic.stop();
                         })
                         .onUpdate(() => {
                             if (!thisTurntable.isRotating) {
                                 child.userData.tweenRollingSide.stop();
-                                thisTurntable.crackling.pause();
-                            } else if (thisTurntable.isRotating && thisTurntable.music.paused) {
-                                thisTurntable.crackling.play();
-                                thisTurntable.crackling.loop = true;
+                                thisTurntable.speakerL.cracklingTFF.pause();
+                                thisTurntable.speakerR.cracklingTFF.pause();
+                            } else if (thisTurntable.isRotating && !thisTurntable.speakerL.soundTFF.isPlaying && !thisTurntable.speakerR.soundTFF.isPlaying) {
+                                thisTurntable.speakerL.cracklingTFF.play();
+                                thisTurntable.speakerR.cracklingTFF.play();
+                                thisTurntable.speakerL.cracklingTFF.loop = true;
+                                thisTurntable.speakerR.cracklingTFF.loop = true;
                             }
                         })
                         .onComplete(() => {
                             child.userData.armIsOnEnd = true;
-                            if (thisTurntable.isRotating && thisTurntable.crackling.paused) {
-                                thisTurntable.crackling.currentTime = 0;
-                                thisTurntable.crackling.play();
-                                thisTurntable.crackling.loop = true;
+                            if (thisTurntable.isRotating && !thisTurntable.speakerL.cracklingT.isPlaying && !thisTurntable.speakerR.cracklingT.isPlaying) {
+                                thisTurntable.speakerL.cracklingTFF.currentTime = 0;
+                                thisTurntable.speakerL.cracklingTFF.play();
+                                thisTurntable.speakerL.cracklingTFF.loop = true;
+                                thisTurntable.speakerR.cracklingTFF.currentTime = 0;
+                                thisTurntable.speakerR.cracklingTFF.play();
+                                thisTurntable.speakerR.cracklingTFF.loop = true;
                             }
                         });
 
@@ -192,9 +206,12 @@ export default class TurntableFromFile extends THREE.Group {
                             child.userData.armIsOnEnd = false;
                             thisTurntable.armIsOnRecord = false;
                             child.userData.tweenRollingSide.stop();
-                            thisTurntable.music.currentTime = 0;
-                            thisTurntable.crackling.pause();
-                            thisTurntable.crackling.currentTime = 0;
+                            thisTurntable.speakerL.soundTFF.currentTime = 0;
+                            thisTurntable.speakerR.soundT.currentTime = 0;
+                            thisTurntable.speakerL.cracklingTFF.pause();
+                            thisTurntable.speakerL.cracklingTFF.currentTime = 0;
+                            thisTurntable.speakerR.cracklingTFF.pause();
+                            thisTurntable.speakerR.cracklingTFF.currentTime = 0;
                         });
 
                     const tweenFromRecordUpEnd = new TWEEN.Tween(child.rotation)
@@ -207,9 +224,12 @@ export default class TurntableFromFile extends THREE.Group {
                             child.userData.armIsOnEnd = false;
                             child.userData.tweenRollingSide.stop();
                             thisTurntable.armIsOnRecord = false;
-                            thisTurntable.music.currentTime = 0;
-                            thisTurntable.crackling.pause();
-                            thisTurntable.crackling.currentTime = 0;
+                            thisTurntable.speakerL.soundTFF.currentTime = 0;
+                            thisTurntable.speakerR.soundTFF.currentTime = 0;
+                            thisTurntable.speakerL.cracklingTFF.pause();
+                            thisTurntable.speakerL.cracklingTFF.currentTime = 0;
+                            thisTurntable.speakerR.cracklingTFF.pause();
+                            thisTurntable.speakerR.cracklingTFF.currentTime = 0;
                         });
 
                     child.userData = {

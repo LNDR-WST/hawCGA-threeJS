@@ -4,7 +4,7 @@ import * as TWEEN from '../../../../lib/tween.js-18.6.4/dist/tween.esm.js';
 
 export default class Turntable extends THREE.Group {
 
-    constructor() {
+    constructor(speakerL, speakerR) {
         super();
 
         this.isPoweredOn = false;
@@ -13,9 +13,13 @@ export default class Turntable extends THREE.Group {
         this.armIsOnEnd = false;
         this.needleLightIsOn = false;
         this.playbackRpm = 33;
-        this.music = new Audio('src/music/music.mp3');
-        this.crackling = new Audio('src/music/crackling.mp3');
-        this.crackling.volume = 0.2;
+
+        this.speakerL = speakerL;
+        this.speakerR = speakerR;
+
+        //this.music = new Audio('src/music/music.mp3');
+        //this.crackling = new Audio('src/music/crackling.mp3');
+        //this.crackling.volume = 0.2;
 
         this.addParts();
 
@@ -330,7 +334,8 @@ export default class Turntable extends THREE.Group {
             .easing(TWEEN.Easing.Quadratic.Out)
             .onStart(() => {
                 this.isRotating = false;
-                this.crackling.pause();
+                this.speakerL.cracklingT.pause();
+                this.speakerR.cracklingT.pause();
             });
 
         rotaryDisc.userData = {tweenStart: tweenDiscStart, tweenStop: tweenDiscStop, tweenRotate: tweenDiscRotate};
@@ -511,7 +516,8 @@ export default class Turntable extends THREE.Group {
                     fourtyFiveButton.position.z
                 ), 125).repeat(1).yoyo(true)
                 .onStart(() => {
-                    this.music.playbackRate = 1.36;
+                    this.speakerL.soundT.setPlaybackRate(1.36);
+                    this.speakerR.soundT.setPlaybackRate(1.36);
                 })
         };
         this.add(fourtyFiveButton);
@@ -534,7 +540,8 @@ export default class Turntable extends THREE.Group {
                     thirtyThreeButton.position.y - 0.075,
                     thirtyThreeButton.position.z), 125).repeat(1).yoyo(true)
                 .onStart(() => {
-                    this.music.playbackRate = 1.0;
+                    this.speakerL.soundT.setPlaybackRate(1);
+                    this.speakerR.soundT.setPlaybackRate(1);
                 })
         };
         this.add(thirtyThreeButton);
@@ -933,28 +940,36 @@ export default class Turntable extends THREE.Group {
                 arm.rotation.x + THREE.MathUtils.degToRad(2.4), arm.rotation.y + THREE.MathUtils.degToRad(-46), arm.rotation.z
             ), 35000)
             .onStart(() => {
-                this.music.play();
+                this.speakerL.soundT.play();
+                this.speakerR.soundT.play();
                 horizontalJoint.userData.tweenRollingArmPlastic.start();
             })
             .onStop(() => {
-                this.music.pause();
+                this.speakerL.soundT.pause();
+                this.speakerR.soundT.pause();
                 horizontalJoint.userData.tweenRollingArmPlastic.stop();
             })
             .onUpdate(() => {
                 if (!this.isRotating) {
                     arm.userData.tweenRollingSide.stop();
-                    this.crackling.pause();
-                } else if (this.isRotating && this.music.paused) {
-                    this.crackling.play();
-                    this.crackling.loop = true;
+                    this.speakerL.cracklingT.pause();
+                    this.speakerR.cracklingT.pause();
+                } else if (this.isRotating && !this.speakerL.soundT.isPlaying && !this.speakerR.soundT.isPlaying) {
+                    this.speakerL.cracklingT.play();
+                    this.speakerR.cracklingT.play();
+                    this.speakerL.cracklingT.loop = true;
+                    this.speakerR.cracklingT.loop = true;
                 }
             })
             .onComplete(() => {
                 this.armIsOnEnd = true;
-                if (this.isRotating && this.crackling.paused) {
-                    this.crackling.currentTime = 0;
-                    this.crackling.play();
-                    this.crackling.loop = true;
+                if (this.isRotating && !this.speakerL.cracklingT.isPlaying && !this.speakerR.cracklingT.isPlaying) {
+                    this.speakerL.cracklingT.currentTime = 0;
+                    this.speakerL.cracklingT.play();
+                    this.speakerL.cracklingT.loop = true;
+                    this.speakerR.cracklingT.currentTime = 0;
+                    this.speakerR.cracklingT.play();
+                    this.speakerR.cracklingT.loop = true;
                 }
             });
 
@@ -995,9 +1010,12 @@ export default class Turntable extends THREE.Group {
             .onStart(() => {
                 this.armIsOnEnd = false;
                 arm.userData.tweenRollingSide.stop();
-                this.music.currentTime = 0;
-                this.crackling.pause();
-                this.crackling.currentTime = 0;
+                this.speakerL.soundT.currentTime = 0;
+                this.speakerR.soundT.currentTime = 0;
+                this.speakerL.cracklingT.pause();
+                this.speakerL.cracklingT.currentTime = 0;
+                this.speakerR.cracklingT.pause();
+                this.speakerR.cracklingT.currentTime = 0;
             });
 
         const tweenFromRecordUpEnd = new TWEEN.Tween(arm.rotation)
@@ -1009,9 +1027,12 @@ export default class Turntable extends THREE.Group {
             .onStart(() => {
                 this.armIsOnEnd = false;
                 arm.userData.tweenRollingSide.stop();
-                this.music.currentTime = 0;
-                this.crackling.pause();
-                this.crackling.currentTime = 0;
+                this.speakerL.soundT.currentTime = 0;
+                this.speakerR.soundT.currentTime = 0;
+                this.speakerL.cracklingT.pause();
+                this.speakerL.cracklingT.currentTime = 0;
+                this.speakerR.cracklingT.pause();
+                this.speakerR.cracklingT.currentTime = 0;
             });
 
         arm.userData = {

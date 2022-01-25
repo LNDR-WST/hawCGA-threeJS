@@ -215,13 +215,16 @@ export function executeRaycast() {
     else if (firstHit.name === '45rpm_gltf') {
       firstHit.userData.animations.get('push45rpm').stop(); // interrupt first
       firstHit.userData.animations.get('push45rpm').play();
-      window.scene.getObjectByName('turntableFromFile').music.playbackRate = 1.36;
+      window.scene.getObjectByName('turntableFromFile').speakerL.soundTFF.setPlaybackRate(1.36);
+      window.scene.getObjectByName('turntableFromFile').speakerR.soundTFF.setPlaybackRate(1.36);
+
     }
 
     else if (firstHit.name === '33rpm_gltf') {
       firstHit.userData.animations.get('push33rpm').stop(); // interrupt first
       firstHit.userData.animations.get('push33rpm').play();
-      window.scene.getObjectByName('turntableFromFile').music.playbackRate = 1;
+      window.scene.getObjectByName('turntableFromFile').speakerL.soundTFF.setPlaybackRate(1);
+      window.scene.getObjectByName('turntableFromFile').speakerR.soundTFF.setPlaybackRate(1);
     }
 
     else if (firstHit.name === 'needleLightOnButton_gltf') {

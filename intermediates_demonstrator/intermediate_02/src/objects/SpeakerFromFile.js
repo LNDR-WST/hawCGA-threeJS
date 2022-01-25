@@ -1,13 +1,22 @@
 import * as THREE from '../../../../lib/three.js-r134/build/three.module.js';
 import {GLTFLoader} from '../../../../lib/three.js-r134/examples/jsm/loaders/GLTFLoader.js';
-
+import { PositionalAudioHelper } from '../../../../lib/three.js-r134/examples/jsm/helpers/PositionalAudioHelper.js';
 
 export default class SpeakerFromFile extends THREE.Group {
 
-    constructor() {
+    constructor(soundTurntable, soundTurntableFF, cracklingT, cracklingTFF) {
         super();
         this.gltfLoader = new GLTFLoader();
         this.loadingDone = false;
+
+        this.soundT = soundTurntable;
+        this.cracklingT = cracklingT;
+
+        this.soundTFF = soundTurntableFF;
+        this.cracklingTFF = cracklingTFF;
+
+        const helper = new PositionalAudioHelper( soundTurntable, 2 );
+        soundTurntable.add( helper );
 
         this.load(this);
     }
@@ -21,6 +30,10 @@ export default class SpeakerFromFile extends THREE.Group {
 
             gltf.scene.traverse((object) => {
                if (object.isMesh) {
+                   if (object.name === 'low') {
+                       object.add(thisSpeaker.soundT, thisSpeaker.soundTFF, thisSpeaker.cracklingT, thisSpeaker.cracklingTFF);
+                   }
+
                    object.castShadow = true;
                    object.receiveShadow = true;
                }
