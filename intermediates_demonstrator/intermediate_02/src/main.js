@@ -46,8 +46,8 @@ function main() {
     window.renderer.shadowMap.enabled = true;                               // Schattenrendering aktivieren
     window.renderer.outputEncoding = THREE.sRGBEncoding;
 
-    window.physics = new Physics(false);
-    window.physics.setup(0, -200, 0, 1/500, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
+    window.physics = new Physics(true);
+    window.physics.setup(0, -200, 0, 1/240, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
 
     document.getElementById('3d_content').appendChild(window.renderer.domElement);
 
@@ -110,8 +110,8 @@ function main() {
         audio.setDirectionalCone(160, 180, 0.1);
         audio.rotateY(-Math.PI/2);
 
-        const helper = new PositionalAudioHelper(audio, 2 );
-        audio.add(helper);
+        //const helper = new PositionalAudioHelper(audio, 2 );
+        //audio.add(helper);
     }
 
     const audioLoaderT = new THREE.AudioLoader();
@@ -170,14 +170,14 @@ function main() {
     const speakerLeft = new SpeakerFromFile(soundTurntable_L, soundTurntableFF_L, cracklingT_L, cracklingTFF_L);
     speakerLeft.scale.set(20, 20, 20);
     speakerLeft.rotateY(105*Math.PI/180);
-    speakerLeft.position.set(-93, 92.1, 0);
+    speakerLeft.position.set(-91, 92.1, 0);
     speakerLeft.addPhysics();
     window.scene.add(speakerLeft);
 
     const speakerRight = new SpeakerFromFile(soundTurntable_R, soundTurntableFF_R, cracklingT_R, cracklingTFF_R);
     speakerRight.scale.set(20, 20, 20);
     speakerRight.rotateY(75*Math.PI/180);
-    speakerRight.position.set(88, 92.1, 0);
+    speakerRight.position.set(90, 92.1, 0);
     speakerRight.addPhysics();
     window.scene.add(speakerRight);
 
@@ -200,11 +200,12 @@ function main() {
     const cabinet = new CabinetFromFile();
     cabinet.name = 'cabinet';
     cabinet.scale.set(0.8, 0.8, 0.8);
-    cabinet.position.set(-6, 0,5);
+    cabinet.position.set(-4, 0,5);
     cabinet.addPhysics();
     //cabinet.rotateY(180*Math.PI/180);
     window.scene.add(cabinet);
 
+    //TODO: Get position of objects when physics not sleeping, position objects perfecty, then put physics to sleep
 
     // Lights
 

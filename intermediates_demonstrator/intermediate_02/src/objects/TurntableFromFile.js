@@ -290,7 +290,7 @@ export default class TurntableFromFile extends THREE.Group {
             const boundingBox = new THREE.Box3().setFromObject(this);
             const boundingBoxSize = new THREE.Vector3();
             boundingBox.getSize(boundingBoxSize);
-            window.physics.addBox(this, 6, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0);
+            window.physics.addBox(this, 6, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, true);
         }
     }
 }

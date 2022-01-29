@@ -52,7 +52,7 @@ export default class SpeakerFromFile extends THREE.Group {
             const boundingBox = new THREE.Box3().setFromObject(cube);
             const boundingBoxSize = new THREE.Vector3();
             boundingBox.getSize(boundingBoxSize);
-            window.physics.addBox(this, 4, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, 0, 0);
+            window.physics.addBox(this, 4, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, 0, 0, true);
         }
     }
 }

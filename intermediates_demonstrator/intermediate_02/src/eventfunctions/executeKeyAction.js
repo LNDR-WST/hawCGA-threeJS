@@ -28,6 +28,7 @@ export function keyDownAction(event) {
             if (!window.spaceDown) {
                 window.spaceDown = true;
 
+                //TODO: Delete after time for performance
                 const ballRadius = 4;
                 const ballGeometry = new THREE.SphereGeometry(ballRadius, 16, 16);
                 const ball = new THREE.Mesh( geometry, material ); //new THREE.Mesh(ballGeometry, new THREE.MeshLambertMaterial({color: 0xff0000}));
