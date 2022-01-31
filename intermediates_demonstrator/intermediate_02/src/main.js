@@ -26,7 +26,7 @@ function main() {
     // Scene, Camera, Renderer
     // ---
     window.scene = new THREE.Scene();
-    window.scene.add(new THREE.AxesHelper(50)); // show axes
+    //window.scene.add(new THREE.AxesHelper(50)); // show axes
     //window.scene.fog = new THREE.Fog(0xa0a0a0, 400, 1000);
 
     window.camera = new THREE.PerspectiveCamera(
@@ -35,8 +35,9 @@ function main() {
         0.1,                                     // Near-Plane-Abstand
         2000                                      // Far-Plane-Abstand
     );
-    window.camera.position.set(-16, 240, 175);
-    window.camera.lookAt(0, 4.927865225327892, -4.243226393111859);
+    window.camera.position.set(0, 180, 350);
+    window.camera.lookAt(0, 60, 0);
+    window.camera.focalLength = 50;
     const listener = new THREE.AudioListener();
     window.camera.add(listener);
 
@@ -46,37 +47,10 @@ function main() {
     window.renderer.shadowMap.enabled = true;                               // Schattenrendering aktivieren
     window.renderer.outputEncoding = THREE.sRGBEncoding;
 
-    window.physics = new Physics(true);
-    window.physics.setup(0, -200, 0, 1/240, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
+    window.physics = new Physics(false);
+    window.physics.setup(0, -220, 0, 1/256, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
 
     document.getElementById('3d_content').appendChild(window.renderer.domElement);
-
-
-    // Controls, Stats, DAT-GUI
-    // ------------------------
-
-    const API_POSAUDIO = {
-        innerConeAngle: 15,
-        outerConeAngle: 15,
-        coneOuterGain: 0.1
-    };
-
-    const gui = new DAT.GUI();
-    gui.add(API_POSAUDIO, 'innerConeAngle', 0, 360).step(1).name('pos.x');
-    gui.add(API_POSAUDIO, 'outerConeAngle', 0, 360).step(1).name('pos.y');
-    gui.add(API_POSAUDIO, 'coneOuterGain', 0, 1).step(0.1).name('pos.z');
-
-    const orbitControls = new CONTROLS.OrbitControls(window.camera, window.renderer.domElement);
-    orbitControls.target = new THREE.Vector3(0, 0, 0);
-    orbitControls.minDistance = 0.5;
-    orbitControls.maxDistance = 1000;
-    orbitControls.update();
-
-    const stats = new STATS.default();
-    document.body.appendChild(stats.dom);
-    stats.showPanel(0);
-    stats.name = 'stats';
-
 
     // Objects, Lights
     // ---
@@ -170,21 +144,21 @@ function main() {
     const speakerLeft = new SpeakerFromFile(soundTurntable_L, soundTurntableFF_L, cracklingT_L, cracklingTFF_L);
     speakerLeft.scale.set(20, 20, 20);
     speakerLeft.rotateY(105*Math.PI/180);
-    speakerLeft.position.set(-91, 92.1, 0);
+    speakerLeft.position.set(-91, 91.7, 0);
     speakerLeft.addPhysics();
     window.scene.add(speakerLeft);
 
     const speakerRight = new SpeakerFromFile(soundTurntable_R, soundTurntableFF_R, cracklingT_R, cracklingTFF_R);
     speakerRight.scale.set(20, 20, 20);
     speakerRight.rotateY(75*Math.PI/180);
-    speakerRight.position.set(90, 92.1, 0);
+    speakerRight.position.set(90, 91.7, 0);
     speakerRight.addPhysics();
     window.scene.add(speakerRight);
 
     // TurntableFromFile
     let turntableFromFile = new TurntableFromFile(speakerLeft, speakerRight);
     turntableFromFile.name = 'turntableFromFile';
-    turntableFromFile.position.set(-33, 67.2, 0);
+    turntableFromFile.position.set(-33, 66.8, 0);
     //turntableFromFile.rotation.set();
     turntableFromFile.addPhysics();
     window.scene.add(turntableFromFile);
@@ -192,7 +166,7 @@ function main() {
     // Turntable
     const turntable = new Turntable(speakerLeft, speakerRight);
     turntable.name = 'turntable';
-    turntable.position.set(33, 68, 0);
+    turntable.position.set(33, 66.8, 0);
     turntable.addPhysics();
     window.scene.add(turntable);
 
@@ -202,69 +176,123 @@ function main() {
     cabinet.scale.set(0.8, 0.8, 0.8);
     cabinet.position.set(-4, 0,5);
     cabinet.addPhysics();
-    //cabinet.rotateY(180*Math.PI/180);
     window.scene.add(cabinet);
 
-    //TODO: Get position of objects when physics not sleeping, position objects perfecty, then put physics to sleep
 
     // Lights
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    window.scene.add(ambientLight);
-
-    const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 0.2);
-    hemiLight.position.set( 0, 200, 0 );
-    window.scene.add( hemiLight );
-
-    let pointLight = new THREE.PointLight(0xffffff, 0.4, 0, 0);
+    //
+    let pointLight = new THREE.PointLight(0xfff8d3, 0.3, 0, 0);
     pointLight.castShadow = false;
     pointLight.shadow.mapSize.set(2048, 2048);
-    pointLight.position.set(0, 220, -300);
+    pointLight.position.set(0, 320, 0);
     window.scene.add(pointLight);
 
-    let spotLight = new THREE.SpotLight(0xddddff, 0.2, 0, THREE.MathUtils.degToRad(45), 1, 2);
-    spotLight.position.set(-200, 200, -200);
-    spotLight.target = turntable; // TODO: Set target
+    let spotLight = new THREE.SpotLight(0xfff8d3, 0.3, 0, THREE.MathUtils.degToRad(45), 1, 2);
+    spotLight.position.set(-100, 200, 100);
+    spotLight.target = turntable;
     spotLight.castShadow = true;
     spotLight.shadow.mapSize.set(2048, 2048);
     spotLight.shadow.camera.aspect = 1;
     spotLight.shadow.camera.near = 10;
     spotLight.shadow.camera.far = 600;
     spotLight.shadow.radius = 5; // Smooth shadow
-    //window.scene.add(new THREE.CameraHelper(spotLight.shadow.camera)); // Visualisierung des Shadow-Frustum
-    //window.scene.add(spotLight);
+    window.scene.add(spotLight);
 
     const spotLight2 = spotLight.clone();
-    spotLight2.position.set(-200, 200, 200);
+    spotLight2.position.set(100, 200, 100);
+    spotLight2.target = turntableFromFile;
     window.scene.add(spotLight2);
 
     const spotLight3 = spotLight.clone();
-    spotLight3.position.set(200, 200, -200);
+    spotLight3.position.set(0, 200, -200);
+    spotLight3.target = cabinet;
     window.scene.add(spotLight3);
 
-    const spotLight4 = spotLight.clone();
-    spotLight4.position.set(200, 200, 200);
-    window.scene.add(spotLight4);
-
-    // const spotLight5 = spotLight.clone();
-    // spotLight5.position.set(0, 200, 200);
-    // window.scene.add(spotLight5);
-    //
-    // const spotLight6 = spotLight.clone();
-    // spotLight6.position.set(0, 200, -200);
-    // window.scene.add(spotLight6);
-    //
-    // const spotLight7 = spotLight.clone();
-    // spotLight7.position.set(-200, 200, 0);
-    // window.scene.add(spotLight7);
-    //
-    // const spotLight8 = spotLight.clone();
-    // spotLight8.position.set(200, 200, 0);
-    // window.scene.add(spotLight8);
+    //window.scene.add(new THREE.CameraHelper(spotLight.shadow.camera), new THREE.CameraHelper(spotLight2.shadow.camera),  new THREE.CameraHelper(spotLight3.shadow.camera)); // Visualisierung des Shadow-Frustum
 
 
+    // Controls, Stats, DAT-GUI
+    // ------------------------
+
+    const API_LIGHT = {
+        r: spotLight.color.r,
+        g: spotLight.color.g,
+        b: spotLight.color.b,
+        intensitySpot: spotLight.intensity,
+        intensityPoint: pointLight.intensity
+    };
+
+    const gui = new DAT.GUI();
+    const lightGUI = gui.addFolder("Light Color");
+    lightGUI.open();
+
+    lightGUI.add(API_LIGHT, 'r', 0, 1).step(1/255).name("R").onChange((value) => {
+        pointLight.color.setRGB(value, API_LIGHT.g, API_LIGHT.b);
+        spotLight.color.setRGB(value, API_LIGHT.g, API_LIGHT.b);
+        spotLight2.color.setRGB(value, API_LIGHT.g, API_LIGHT.b);
+        spotLight3.color.setRGB(value, API_LIGHT.g, API_LIGHT.b);
+    });
+    lightGUI.add(API_LIGHT, 'g', 0, 1).step(1/255).name("G").onChange((value) => {
+        pointLight.color.setRGB(API_LIGHT.r, value, API_LIGHT.b);
+        spotLight.color.setRGB(API_LIGHT.r, value, API_LIGHT.b);
+        spotLight2.color.setRGB(API_LIGHT.r, value, API_LIGHT.b);
+        spotLight3.color.setRGB(API_LIGHT.r, value, API_LIGHT.b);
+    });
+    lightGUI.add(API_LIGHT, 'b', 0, 1).step(1/255).name("B").onChange((value) => {
+        pointLight.color.setRGB(API_LIGHT.r, API_LIGHT.g, value);
+        spotLight.color.setRGB(API_LIGHT.r, API_LIGHT.g, value);
+        spotLight2.color.setRGB(API_LIGHT.r, API_LIGHT.g, value);
+        spotLight3.color.setRGB(API_LIGHT.r, API_LIGHT.g, value);
+    });
+
+    const spotlightGUI = gui.addFolder("Light Intensity");
+    spotlightGUI.open();
+    spotlightGUI.add(API_LIGHT, 'intensitySpot', 0, 1).step(0.05).name("Spotlights").onChange((value) => {
+        spotLight.intensity = value;
+        spotLight2.intensity = value;
+        spotLight3.intensity = value;
+    });
+    spotlightGUI.add(API_LIGHT, 'intensityPoint', 0, 1).step(0.05).name("Pointlight").onChange((value) => {
+        pointLight.intensity = value;
+    });
+
+    const orbitControls = new CONTROLS.OrbitControls(window.camera, window.renderer.domElement);
+    orbitControls.target = new THREE.Vector3(0, 0, 0);
+    orbitControls.minDistance = 0.5;
+    orbitControls.maxDistance = 1000;
+    orbitControls.update();
 
 
+    const stats = new STATS.default();
+    document.body.appendChild(stats.dom);
+    stats.showPanel(0);
+    stats.name = 'stats';
+
+    // Camera Tweens
+
+    window.camera.tween1 = new TWEEN.Tween(window.camera.position)
+        .to(new THREE.Vector3(0, 180, 350), 250)
+        .onUpdate(() => {
+            orbitControls.update();
+            window.camera.lookAt(0, 60, 0);
+    })
+        .onComplete(() => {
+            orbitControls.update();
+            window.camera.position.set(0, 180, 350);
+            window.camera.lookAt(0, 60, 0);
+        });
+
+    window.camera.tween2 = new TWEEN.Tween(window.camera.position)
+        .to(new THREE.Vector3(37, 125, 50), 250)
+        .onUpdate(() => {
+            orbitControls.update();
+            window.camera.lookAt(turntable.position);
+        })
+        .onComplete(() => {
+            orbitControls.update();
+            window.camera.position.set(37, 125, 50);
+            window.camera.lookAt(turntable.position);
+        });
 
     const clock = new THREE.Clock();
 
@@ -290,14 +318,7 @@ function main() {
     mainLoop();
 
 }
-window.stopAllTweens = function() {
-    const tweens = TWEEN.getAll();
-    if (tweens.length > 0) {
-        for (const tween of tweens) {
-            tween.stop();
-        }
-    }
-};
+
 window.onload = main;
 window.onresize = updateAspectRatio;
 window.onmousemove = calculateMousePosition;

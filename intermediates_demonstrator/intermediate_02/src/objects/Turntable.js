@@ -17,10 +17,6 @@ export default class Turntable extends THREE.Group {
         this.speakerL = speakerL;
         this.speakerR = speakerR;
 
-        //this.music = new Audio('src/music/music.mp3');
-        //this.crackling = new Audio('src/music/crackling.mp3');
-        //this.crackling.volume = 0.2;
-
         this.addParts();
 
     }
@@ -80,11 +76,18 @@ export default class Turntable extends THREE.Group {
         });
         metalMaterial.color.setHex(0xcccccc).convertSRGBToLinear();
 
+        // Environment Map
         const envMap = new THREE.TextureLoader().load('../../lib/three.js-r134/examples/textures/2294472375_24a3b8ef46_o.jpg');
         envMap.mapping = THREE.EquirectangularReflectionMapping;
         envMap.encoding = THREE.sRGBEncoding;
         metalMaterial.envMap = envMap;
         metalMaterial.envMapIntensity = 10.0;
+
+        tabletopMaterialTextured.envMap = envMap;
+        tabletopMaterialTextured.envMapIntensity = 10.0;
+
+        //tabletopMaterial.envMap = envMap;
+        //tabletopMaterial.envMapIntensity = 10.0;
 
         const rotaryRingMaterial = new THREE.MeshStandardMaterial({
             color: 0xcccccc,
@@ -351,7 +354,7 @@ export default class Turntable extends THREE.Group {
         const powerKnobCylinder = new THREE.Mesh(powerKnobCylinderGeometry, metalMaterial);
         powerKnobCylinder.position.set(0, 1.75/2, 0);
 
-        // Emissive Powerlight // TODO: Cutout from Main Cylinder with Buffer Geometry setting open faces?
+        // Emissive Powerlight
         const emissivePowerLightGeometry = new THREE.CylinderGeometry(2.025, 2.025, 1.5, 16, 1, false, 1.5, 1.25);
         const emissivePowerLight = new THREE.Mesh(emissivePowerLightGeometry, emissivePowerMaterial);
         emissivePowerLight.position.set(0, 1.75/2, 0);
@@ -787,7 +790,7 @@ export default class Turntable extends THREE.Group {
         horizontalJointGeometry.computeVertexNormals();
         const horizontalJoint = new THREE.Mesh(horizontalJointGeometry, corpusMaterial);
         horizontalJoint.position.set(21.2, 16.655 + 2.2, -12.4);
-        horizontalJoint.name = 'horizontalJointWithCylinder'; // TODO: needs to be rotated later
+        horizontalJoint.name = 'horizontalJointWithCylinder';
 
         const plasticParkPosition = horizontalJoint.rotation;
         const tweenMoveArmPlasticSide1 = new TWEEN.Tween(horizontalJoint.rotation)
@@ -954,7 +957,7 @@ export default class Turntable extends THREE.Group {
                     arm.userData.tweenRollingSide.stop();
                     this.speakerL.cracklingT.pause();
                     this.speakerR.cracklingT.pause();
-                } else if (this.isRotating && !this.speakerL.soundT.isPlaying && !this.speakerR.soundT.isPlaying) {
+                } else if (this.isRotating && !this.speakerL.soundT.isPlaying && !this.speakerR.soundT.isPlaying && !this.speakerL.cracklingT.isPlaying && !this.speakerR.cracklingT.isPlaying) {
                     this.speakerL.cracklingT.play();
                     this.speakerR.cracklingT.play();
                     this.speakerL.cracklingT.setLoop(true);
@@ -1314,12 +1317,8 @@ export default class Turntable extends THREE.Group {
             const boundingBox = new THREE.Box3().setFromObject(this);
             const boundingBoxSize = new THREE.Vector3();
             boundingBox.getSize(boundingBoxSize);
-            window.physics.addBox(this, 6, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, true);
+            window.physics.addBox(this, 10, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, true);
         }
     }
 
 }
-
-
-
-// Translate on Geometry moves origin; Translate (position.set) on Object moves position (not origin)

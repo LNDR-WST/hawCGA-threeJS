@@ -16,9 +16,11 @@ const material = new THREE.MeshStandardMaterial({
 export function keyDownAction(event) {
 
     switch (event.keyCode) {
-        case 49: // Digit1  TODO: Camera Tweening
+        case 49: // Digit1
+            window.camera.tween1.start();
             break;
         case 50: // Digit2
+            window.camera.tween2.start();
             break;
         case 51: // Digit3
             break;
@@ -28,10 +30,8 @@ export function keyDownAction(event) {
             if (!window.spaceDown) {
                 window.spaceDown = true;
 
-                //TODO: Delete after time for performance
                 const ballRadius = 4;
-                const ballGeometry = new THREE.SphereGeometry(ballRadius, 16, 16);
-                const ball = new THREE.Mesh( geometry, material ); //new THREE.Mesh(ballGeometry, new THREE.MeshLambertMaterial({color: 0xff0000}));
+                const ball = new THREE.Mesh( geometry, material );
 
                 ball.position.set(window.camera.position.x, window.camera.position.y, window.camera.position.z);
                 ball.castShadow = true;
@@ -40,8 +40,8 @@ export function keyDownAction(event) {
                 const directionalVectorDC = new THREE.Vector3(window.mousePosition.x, window.mousePosition.y, 1);
                 const velocityVectorWC = directionalVectorDC.unproject(window.camera);
                 velocityVectorWC.normalize();
-                velocityVectorWC.multiplyScalar(1600);
-                window.physics.addSphereWithVelocity(ball, 1, ballRadius, velocityVectorWC);
+                velocityVectorWC.multiplyScalar(1200);
+                window.physics.addSphereWithVelocity(ball, 4, ballRadius, velocityVectorWC);
             }
             break;
     }

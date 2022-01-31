@@ -51,17 +51,21 @@ export default class Physics {
     for (let i = 0; i < this.objects.length; i++) {
       this.objects[i].position.copy(this.bodies[i].position);
       this.objects[i].quaternion.copy(this.bodies[i].quaternion);
+      //console.log(this.bodies[i].velocity);
     }
+
   }
 
   getWorld() {
     return this.world;
   }
 
-  addBox(object, mass, dimX, dimY, dimZ, offsetX = 0, offsetY = 0, offsetZ = 0, sleeping = false) {
+  addBox(object, mass, dimX, dimY, dimZ, offsetX = 0, offsetY = 0, offsetZ = 0, sleeping = false, staticBody = false) {
 
     // Create body with specified mass
-    const body = new CANNON.Body({mass: mass});
+    const body = new CANNON.Body({
+      mass: mass
+    });
 
     // Add shape (~collider) to physical body
     const dimension = new CANNON.Vec3(dimX / 2, dimY / 2, dimZ / 2);
@@ -75,6 +79,10 @@ export default class Physics {
     // Set body to sleep if required
     if (sleeping) {
       body.sleep();
+    }
+
+    if (staticBody) {
+      body.type = CANNON.Body.STATIC;
     }
 
     // Add body to physical world
@@ -143,7 +151,12 @@ export default class Physics {
   addSphereWithVelocity(object, mass, radius, velocityVector) {
 
     // Create body with specified mass
-    const body = new CANNON.Body({mass: mass});
+    const body = new CANNON.Body({
+      mass: mass
+      });
+    body.sleepSpeedLimit = 2.0;
+    body.linearDamping = 0.4;
+    body.angularDamping = 0.4;
 
     // Add shape (~collider) to physical body
     body.addShape(new CANNON.Sphere(radius));

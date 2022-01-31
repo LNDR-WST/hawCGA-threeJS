@@ -250,32 +250,9 @@ export function executeRaycast() {
     }
 
     else if (firstHit.name === 'needle_msh_metal_mat1_0' ||
-        // TODO: Manual Tweens for Arm
         firstHit.name === 'needle_system_msh_needle_mat_0' ||
         firstHit.name === 'armMetal_gltf' ||
         firstHit.name === 'armWeightPlastic_gltf') {
-
-      // if (!(firstHit.userData.animations.get('armToRecord').isRunning() ||
-      //     firstHit.userData.animations.get('armFromRecord').isRunning())){
-      //
-      //   if (!firstHit.userData.armIsOnRecord) {
-      //     firstHit.userData.animations.get('armFromRecord').stop();
-      //     firstHit.userData.animations.get('armToRecord').play();
-      //     firstHit.userData.animations.get('turnFromRecord').stop();
-      //     firstHit.userData.animations.get('turnToRecord').play();
-      //     setTimeout(() => {
-      //       firstHit.userData.armIsOnRecord = true;
-      //     }, 2500);
-      //   } else {
-      //     firstHit.userData.animations.get('armToRecord').stop();
-      //     firstHit.userData.animations.get('armFromRecord').play();
-      //     firstHit.userData.animations.get('turnToRecord').stop();
-      //     firstHit.userData.animations.get('turnFromRecord').play();
-      //     setTimeout(() => {
-      //       firstHit.userData.armIsOnRecord = false;
-      //     }, 2500);
-      //   }
-      // }
 
       const arm = window.scene.getObjectByName('arm_group_gltf');
       const horizontalJoint = window.scene.getObjectByName('armHorizontalJoint_gltf');

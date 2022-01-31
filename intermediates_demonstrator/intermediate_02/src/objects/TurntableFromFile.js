@@ -20,10 +20,6 @@ export default class TurntableFromFile extends THREE.Group {
         this.speakerL = speakerL;
         this.speakerR = speakerR;
 
-        //this.music = new Audio('src/music/music.mp3');
-        //this.crackling = new Audio('src/music/crackling.mp3');
-        //this.crackling.volume = 0.2;
-
         this.loadingDone = false;
 
         this.load(this);
@@ -34,6 +30,10 @@ export default class TurntableFromFile extends THREE.Group {
 
         this.gltfLoader.load('src/models/turntable.gltf', function (gltf) {
 
+            const envMap = new THREE.TextureLoader().load('../../lib/three.js-r134/examples/textures/2294472375_24a3b8ef46_o.jpg');
+            envMap.mapping = THREE.EquirectangularReflectionMapping;
+            envMap.encoding = THREE.sRGBEncoding;
+
             gltf.scene.traverse(function(child) {
 
                 //console.log("Name: " + child.name);
@@ -41,6 +41,27 @@ export default class TurntableFromFile extends THREE.Group {
 
                 if (child.isMesh) {
                     child.userData = thisTurntable;
+
+                    if (child.name === "armMetal_gltf" ||
+                        child.name === "armVertJoint_gltf" ||
+                        child.name === "tabletop_gltf" ||
+                        child.name === "singlePuk_gltf" ||
+                        child.name === "center_gltf" ||
+                        child.name === "powerKnob__gltf" ||
+                        child.name === "powerSwitch_gltf" ||
+                        child.name === "45rpm_gltf" ||
+                        child.name === "33rpm_gltf" ||
+                        child.name === "polySurface11_metal_mat_0_light" ||
+                        child.name === "needleLightOnButton_gltf" ||
+                        child.name === "needleLightOffButton_gltf" ||
+                        child.name === "speedSlider_gltf" ||
+                        child.name === "weightAdjustment_gltf" ||
+                        child.name === "rotaryDisc__gltf") {
+
+                        child.material.envMap = envMap;
+                        child.material.envMapIntensity = 10.0;
+                    }
+
 
                     // manually implemented animations
                     if (child.name === 'powerEmission_gltf') {
@@ -115,16 +136,16 @@ export default class TurntableFromFile extends THREE.Group {
 
                 }
 
-                // TODO: Check if shadows are being casted and received
-                if( child.name === 'polySurface6_body_top_mat_0' || // Korpus oben
-                    child.name === 'polySurface20_phongE4_0' ||     // Korpus mitte
-                    child.name === 'polySurface2_foot_mat_0' ||     // Fuß
-                    child.name === 'polySurface7_foot_mat_0' ||     // Fuß
-                    child.name === 'polySurface8_foot_mat_0' ||     // Fuß
-                    child.name === 'polySurface9_foot_mat_0') {     // Fuß
+                if( child.name === 'corpus_gltf' || // Korpus oben
+                    child.name === 'tabletop_gltf' ||     // Korpus mitte
+                    child.name === 'arm_gltf' ||
+                    child.name === 'leftBackFoot_gltf' ||     // Fuß
+                    child.name === 'rightBackFoot_gltf' ||     // Fuß
+                    child.name === 'leftFrontFoot_gltf' ||     // Fuß
+                    child.name === 'rightFrontFoot_gltf') {     // Fuß
                     child.castShadow = true;
                 }
-                if (child.name === 'polySurface20_phongE4_0') {     // Korpus mitte
+                if (child.name === 'corpus_gltf') {     // Korpus mitte
                         child.receiveShadow = true;
                 }
 
@@ -290,7 +311,7 @@ export default class TurntableFromFile extends THREE.Group {
             const boundingBox = new THREE.Box3().setFromObject(this);
             const boundingBoxSize = new THREE.Vector3();
             boundingBox.getSize(boundingBoxSize);
-            window.physics.addBox(this, 6, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, true);
+            window.physics.addBox(this, 10, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, false);
         }
     }
 }

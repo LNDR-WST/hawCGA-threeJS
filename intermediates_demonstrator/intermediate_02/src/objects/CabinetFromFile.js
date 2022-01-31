@@ -38,7 +38,7 @@ export default class CabinetFromFile extends THREE.Group {
             const boundingBox = new THREE.Box3().setFromObject(this);
             const boundingBoxSize = new THREE.Vector3();
             boundingBox.getSize(boundingBoxSize);
-            window.physics.addBox(this, 10, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 3.5, boundingBoxSize.y/2 + 0.2, -4.7, true);
+            window.physics.addBox(this, 10, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 3.5, boundingBoxSize.y/2 + 0.2, -4.7, true, true);
         }
     }
 }
