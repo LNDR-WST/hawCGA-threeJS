@@ -20,13 +20,14 @@
                                                                                                             02.02.2022
 ########################################################################################################################
 ## CGA Demontrator: Turntable
-######
------
+################################
+
+-------
 LEANDER WERNST (2555900)
 Media Systems, 4. Semester (WiSe 2021)
 -------------------------------------------------------
 Kurs:
------
+
 Computergrafik & Animation (Prof. Dr. Jan A. Neuhöfer)
 Hochschule für Angewandte Wissenschaften Hamburg
 Fakultät Design, Medien und Information
@@ -34,7 +35,7 @@ Fakultät Design, Medien und Information
 
 ########################################################################################################################
 ## INHALT
-######
+################################
 
 1. Projektbeschreibung
 2. How to run
@@ -44,7 +45,7 @@ Fakultät Design, Medien und Information
 
 ########################################################################################################################
 ## 1. PROJEKTBESCHREIBUNG
-######
+################################
 
 Das Projekt ist im Rahmen des Kurses "Computergrafik & Animation" im 4. Semester "Media Systems" an der Hochschule für
 Angewandte Wissenschaften Hamburg mit Betreuung durch Prof. Dr. Jan A Neuhöfer entstanden.
@@ -80,7 +81,7 @@ Plattenspielers als GLTF in die Three.js-Szene geladen.
 
 ########################################################################################################################
 ## 2. HOW TO RUN
-######
+################################
 
 Damit die Bibliotheken gemäß der Struktur der Vorlesung korrekt geladen werden können, muss die folgende Struktur
 eingehalten werden:
@@ -89,10 +90,10 @@ Der Ordner "demonstrator_wernst-leander" muss in einem übergeordneten Ordner ab
 liegt. "demonstrator_wernst-leander" beinhaltet somit dieselbe Ordnerstruktur wie ein "Zwischenstand" aus der Vorlesung
 ("intermediate_xy").
 
-Tree:
+Benötigte Ordnerstruktur:
 
 ├───uebergeordneter_ordner
-│   └───demonstrator_wernst-leander
+│   └───demonstrator_wernst-leander             <------ !
 │       └───src
 │           ├───eventfunctions
 │           ├───images
@@ -108,22 +109,27 @@ Tree:
     ├───three-csg-2020
     └───tween.js-18.6.4
 
+Die in dem Ordner "src" befindliche Datei "index.html" muss von einem Server angefordert werden, der diese dann an den
+Client sendet. Wie in der Vorlesung wurde dies zur Entwicklung mit der lokalen Serverumgebung realisiert, die die
+integrierte Entwicklungsumgebung "WebStorm"  (JetBrains) von Haus aus bereitstellt.
 
 ########################################################################################################################
 ## 3. FEATURES
-######
-****************
-* KAMERA
-****************
+################################
+
+********************
+**     KAMERA     **
+********************
 Mithilfe der Maus kann die Kamera innerhalb der Szene bewegt werden (Orbit Controls).
 
 - Linke Maustaste:    Rotation
 - Mausrad:            Zoom
 - Rechte Maustaste    Pan
 
-****************
-* PLATTENSPIELER
-****************
+
+********************
+** PLATTENSPIELER **
+********************
 
 Beide Plattenspieler können durch Mausklicks (linke Maustaste) gesteuert werden.
 Dabei sind folgende Aktionen möglich:
@@ -140,17 +146,19 @@ Ist die Musik zuende, die Nadel aber weiterhin auf der Schallplatte und dreht si
 die Platte rauschen/knacken.
 Die Abspielgeschwindigkeit des Sounds kann verändert werden, die sichtbare Drehgeschwindigkeit bleibt dieselbe.
 
-****************
-* Lautsprecher
-****************
+
+********************
+**  LAUTSPRECHER  **
+********************
 
 Die Lautsprecher geben die von den Plattenspielern abgespielte Musik wieder. Sie sind mit "Positional Audio" so
 eingestellt, dass der gut hörbare Bereich auch vor diesen Lautsprechern liegt.Bewegt sich die Kamera hinter die
 Lautsprecher oder sehr weit von diesen weg, nimmt die Lautstärke der Sounds ab.
 
-****************
-* PHYSIK
-****************
+
+********************
+**     PHYSIK     **
+********************
 
 Die Szene und die sich darin befindenden Objekte sind mit physikalischen Eigenschaften ausgestattet (Schwerkraft und
 Masse). Um Kollisionen zu verursachen können mit einem Klick auf die Leertaste Tennisbälle geschossen werden.
@@ -166,9 +174,10 @@ Eigenschaften (Cannon.js) sehr unstabil sind und auf Dauer nicht still stehen (s
 Das Problem lässt sich auch in einem der offiziellen Beispiele nachvollziehen:
 http://schteppe.github.io/cannon.js/demos/convex.html ("convex on convex").
 
-****************
-* GUI
-****************
+
+********************
+**       GUI      **
+********************
 
 Das Lichtsetting lässt sich mit dem sich am rechten oberen Rand befindlichen Graphic User Interface einstellen.
 Die Position der Lichtquellen ist dabei fest, je ein Spotlight verfolgt aber einen der Plattenspieler.
@@ -176,13 +185,14 @@ Die Lichtstimmung kann über die Intensität der vorhandenen Lichtquellen sowie 
 die Werte 0-1 in dem GUI die RGB-Werte von 0-255 abbilden.
 
 
+
 ########################################################################################################################
 ## 4. CREDITS/EXTERNE QUELLEN
-######
+################################
 
-****************************
-* Modell Plattenspieler:
-****
+***************************
+** Modell Plattenspieler **
+***************************
 - turntable.gltf (bearbeitet)
 
 Inklusive Texturen (bearbeitet):
@@ -198,9 +208,9 @@ https://sketchfab.com/3d-models/mk2-1210-turntable-old-201817db6b0d45c29ead1b3b6
 CC Attribution
 
 
-****************************
-* Lautsprecher-Modell
-****
+***************************
+**  Lautsprecher-Modell  **
+***************************
 - speaker.gltf (bearbeitet)
 
 Quelle:
@@ -210,9 +220,9 @@ https://sketchfab.com/3d-models/speaker-998d4fc1513745eaafe8bb3d6e3d1032
 CC Attribution
 
 
-****************************
-* Modell "Cabinet":
-****
+***************************
+**    Modell "Cabinet"   **
+***************************
 - woodencabinet.gltf (bearbeitet)
 
 Quelle:
@@ -222,9 +232,9 @@ https://sketchfab.com/3d-models/tv-cabinets-andersen-a225d196dd7c4b50a140ecfc22b
 CC Attribution
 
 
-****************************
-* Sound Crackling
-****
+***************************
+**    Sound Crackling    **
+***************************
 - crackling.mp3
 
 Quelle:
@@ -233,9 +243,9 @@ Quelle:
 https://99sounds.org/vinyl-noise-sfx/
 
 
-****************************
-* Musik
-****
+***************************
+**         Musik         **
+***************************
 - music.mp3
 
 Quelle:
@@ -244,19 +254,20 @@ Pixabay.com, "Best Buddies" by Kinemesis Music
 https://pixabay.com/music/introoutro-best-buddies-12609/
 
 
-****************************
-* Skripte Prof. Dr. Neuhöfer
-****
+***************************
+**   Skripte Vorlesung   **
+***************************
 - calculateMousePosition.js
 - executeKeyAction.js (bearbeitet)
 - updateAspectRatio.js
 - Physics.js (bearbeitet)
 
 aus den CGA-Vorlesungen
+von Prof. Dr. Jan A. Neuhöfer
 
-****************************
-* Fremdcode
-****
+***************************
+**       Fremdcode       **
+***************************
 rotateAboutPoint(obj, point, axis, theta, pointIsWorld)
 JavaScript-Funktion (siehe Turntable.js)
 
@@ -266,17 +277,17 @@ Stackoverflow.com, Autor: TheJim01
 https://stackoverflow.com/a/42866733 (answered Mar 17 '17 at 20:40; edited Aug 5 '19 at 16:36)
 Abruf: 13.01.2022 13:30 Uhr
 
-****************************
-* Floor-Textur
-****
+***************************
+**      Floor-Textur     **
+***************************
 - wood_base.jpg
 
 Quelle: Textures.com, "WoodFine0007"
 https://www.textures.com/download/WoodFine0077/122591
 
-****************************
-* Tennisball-Texturen
-****
+***************************
+**  Tennisball-Texturen  **
+***************************
 - TennisBallBump.jpg
 - TennisBallColorMap.jpg
 
