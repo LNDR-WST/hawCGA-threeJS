@@ -48,7 +48,7 @@ function main() {
     window.renderer.outputEncoding = THREE.sRGBEncoding;
 
     window.physics = new Physics(false);
-    window.physics.setup(0, -240, 0, 1/256, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
+    window.physics.setup(0, -240, 0, 1/240, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
 
     window.wireframe = false;
 
