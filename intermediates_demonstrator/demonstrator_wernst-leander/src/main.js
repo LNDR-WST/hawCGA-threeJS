@@ -50,6 +50,8 @@ function main() {
     window.physics = new Physics(false);
     window.physics.setup(0, -240, 0, 1/256, true); // Gravity X, Y, Z; Zeitschrittweite (Integrationsschritte); Boden
 
+    window.wireframe = false;
+
     document.getElementById('3d_content').appendChild(window.renderer.domElement);
 
     // Objects, Lights
@@ -181,7 +183,7 @@ function main() {
 
     // Lights
     //
-    let pointLight = new THREE.PointLight(0xfff8d3, 0.3, 0, 0);
+    let pointLight = new THREE.PointLight(0xfff8d3, 0.3, 0, 2);
     pointLight.castShadow = false;
     pointLight.shadow.mapSize.set(2048, 2048);
     pointLight.position.set(0, 320, 0);
@@ -225,7 +227,25 @@ function main() {
     };
 
     const API_GENERAL = {
-        dispose: function (){
+        stopAudio: () => {
+            window.stopAllTweens();
+            for (const audio of positionalAudioList) {
+               audio.pause();
+               audio._progress = 0;
+            }
+        },
+        reset: () => {
+            API_GENERAL.dispose();
+            for (const body of window.physics.world.bodies) {
+                if (body.resetPosition !== undefined && body.resetRotation !== undefined) {
+                    body.sleep();
+                    body.quaternion.set(body.resetRotation.x, body.resetRotation.y, body.resetRotation.z, body.resetRotation.w);
+                    body.position.set(body.resetPosition.x, body.resetPosition.y, body.resetPosition.z);
+                    body.wakeUp();
+                }
+            }
+        },
+        dispose: () => {
             for (const ballbody of window.physics.ballbodies) {
                 window.physics.world.removeBody(ballbody);
             }
@@ -234,6 +254,12 @@ function main() {
             }
             window.physics.ballbodies = [];
             window.physics.balls = [];
+        },
+        wireframe: () => {
+            turntable.setWireFrame();
+        },
+        allWireframe: () => {
+            toggleWireframe();
         }
     };
 
@@ -273,7 +299,12 @@ function main() {
 
     const generalGUI = gui.addFolder("General");
     generalGUI.open();
+    generalGUI.add(API_GENERAL, 'reset').name('Reset Positions');
     generalGUI.add(API_GENERAL, 'dispose').name('Remove Balls');
+    generalGUI.add(API_GENERAL, 'wireframe').name('Wireframe Turnt.');
+    generalGUI.add(API_GENERAL, 'allWireframe').name('Wireframe All');
+    generalGUI.add(API_GENERAL, 'stopAudio').name('Stop Aud&Anim');
+
 
     const orbitControls = new CONTROLS.OrbitControls(window.camera, window.renderer.domElement);
     orbitControls.target = new THREE.Vector3(0, 0, 0);
@@ -334,10 +365,32 @@ function main() {
         requestAnimationFrame(mainLoop); // Anfrage nächstmögliche Ausführung mainLoop(); pausiert bei Minimierung; Sync zu refresh rate Monitor
     }
 
+    function toggleWireframe() {
+        window.wireframe = !window.wireframe;
+        turntable.wireframe = window.wireframe;
+        window.scene.traverse((child) => {
+            if (child.isMesh) {
+                child.material.wireframe = window.wireframe;
+                if (child.name === 'rotaryDiscWithRecord') {
+                    child.material[0].wireframe = window.wireframe;
+                    child.material[1].wireframe = window.wireframe;
+                    child.material[2].wireframe = window.wireframe;
+                }
+            }
+        })
+    }
+
     mainLoop();
 
 }
-
+window.stopAllTweens = function() {
+    const tweens = TWEEN.getAll();
+    if (tweens.length > 0) {
+        for (const tween of tweens) {
+            tween.stop();
+        }
+    }
+};
 window.onload = main;
 window.onresize = updateAspectRatio;
 window.onmousemove = calculateMousePosition;

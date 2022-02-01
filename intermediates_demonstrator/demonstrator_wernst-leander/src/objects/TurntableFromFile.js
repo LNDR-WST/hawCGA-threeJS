@@ -179,10 +179,10 @@ export default class TurntableFromFile extends THREE.Group {
                         .onComplete(() => {
                             child.userData.armIsOnEnd = true;
                             if (thisTurntable.isRotating && !thisTurntable.speakerL.cracklingT.isPlaying && !thisTurntable.speakerR.cracklingT.isPlaying) {
-                                thisTurntable.speakerL.cracklingTFF.currentTime = 0;
+                                thisTurntable.speakerL.cracklingTFF._progress = 0;
                                 thisTurntable.speakerL.cracklingTFF.play();
                                 thisTurntable.speakerL.cracklingTFF.setLoop(true);
-                                thisTurntable.speakerR.cracklingTFF.currentTime = 0;
+                                thisTurntable.speakerR.cracklingTFF._progress = 0;
                                 thisTurntable.speakerR.cracklingTFF.play();
                                 thisTurntable.speakerR.cracklingTFF.setLoop(true);
                             }
@@ -227,12 +227,12 @@ export default class TurntableFromFile extends THREE.Group {
                             child.userData.armIsOnEnd = false;
                             thisTurntable.armIsOnRecord = false;
                             child.userData.tweenRollingSide.stop();
-                            thisTurntable.speakerL.soundTFF.currentTime = 0;
-                            thisTurntable.speakerR.soundT.currentTime = 0;
+                            thisTurntable.speakerL.soundTFF._progress = 0;
+                            thisTurntable.speakerR.soundTFF._progress = 0;
                             thisTurntable.speakerL.cracklingTFF.pause();
-                            thisTurntable.speakerL.cracklingTFF.currentTime = 0;
+                            thisTurntable.speakerL.cracklingTFF._progress = 0;
                             thisTurntable.speakerR.cracklingTFF.pause();
-                            thisTurntable.speakerR.cracklingTFF.currentTime = 0;
+                            thisTurntable.speakerR.cracklingTFF._progress = 0;
                         });
 
                     const tweenFromRecordUpEnd = new TWEEN.Tween(child.rotation)
@@ -245,12 +245,12 @@ export default class TurntableFromFile extends THREE.Group {
                             child.userData.armIsOnEnd = false;
                             child.userData.tweenRollingSide.stop();
                             thisTurntable.armIsOnRecord = false;
-                            thisTurntable.speakerL.soundTFF.currentTime = 0;
-                            thisTurntable.speakerR.soundTFF.currentTime = 0;
+                            thisTurntable.speakerL.soundTFF._progress = 0;
+                            thisTurntable.speakerR.soundTFF._progress = 0;
                             thisTurntable.speakerL.cracklingTFF.pause();
-                            thisTurntable.speakerL.cracklingTFF.currentTime = 0;
+                            thisTurntable.speakerL.cracklingTFF._progress = 0;
                             thisTurntable.speakerR.cracklingTFF.pause();
-                            thisTurntable.speakerR.cracklingTFF.currentTime = 0;
+                            thisTurntable.speakerR.cracklingTFF._progress = 0;
                         });
 
                     child.userData = {
@@ -285,8 +285,6 @@ export default class TurntableFromFile extends THREE.Group {
                         tweenRollingArmPlastic: tweenRollingArmPlastic
                     };
                 }
-
-
             });
 
             thisTurntable.animationMixer = new THREE.AnimationMixer(gltf.scene);

@@ -17,6 +17,8 @@ export default class Turntable extends THREE.Group {
         this.speakerL = speakerL;
         this.speakerR = speakerR;
 
+        this.wireframe = false;
+
         this.addParts();
 
     }
@@ -967,10 +969,10 @@ export default class Turntable extends THREE.Group {
             .onComplete(() => {
                 this.armIsOnEnd = true;
                 if (this.isRotating && !this.speakerL.cracklingT.isPlaying && !this.speakerR.cracklingT.isPlaying) {
-                    this.speakerL.cracklingT.currentTime = 0;
+                    this.speakerL.cracklingT._progress = 0;
                     this.speakerL.cracklingT.play();
                     this.speakerL.cracklingT.setLoop(true);
-                    this.speakerR.cracklingT.currentTime = 0;
+                    this.speakerR.cracklingT._progress = 0;
                     this.speakerR.cracklingT.play();
                     this.speakerR.cracklingT.setLoop(true);
                 }
@@ -1013,12 +1015,12 @@ export default class Turntable extends THREE.Group {
             .onStart(() => {
                 this.armIsOnEnd = false;
                 arm.userData.tweenRollingSide.stop();
-                this.speakerL.soundT.currentTime = 0;
-                this.speakerR.soundT.currentTime = 0;
+                this.speakerL.soundT._progress = 0;
+                this.speakerR.soundT._progress = 0;
                 this.speakerL.cracklingT.pause();
-                this.speakerL.cracklingT.currentTime = 0;
+                this.speakerL.cracklingT._progress = 0;
                 this.speakerR.cracklingT.pause();
-                this.speakerR.cracklingT.currentTime = 0;
+                this.speakerR.cracklingT._progress = 0;
             });
 
         const tweenFromRecordUpEnd = new TWEEN.Tween(arm.rotation)
@@ -1030,12 +1032,12 @@ export default class Turntable extends THREE.Group {
             .onStart(() => {
                 this.armIsOnEnd = false;
                 arm.userData.tweenRollingSide.stop();
-                this.speakerL.soundT.currentTime = 0;
-                this.speakerR.soundT.currentTime = 0;
+                this.speakerL.soundT._progress = 0;
+                this.speakerR.soundT._progress = 0;
                 this.speakerL.cracklingT.pause();
-                this.speakerL.cracklingT.currentTime = 0;
+                this.speakerL.cracklingT._progress = 0;
                 this.speakerR.cracklingT.pause();
-                this.speakerR.cracklingT.currentTime = 0;
+                this.speakerR.cracklingT._progress = 0;
             });
 
         arm.userData = {
@@ -1319,6 +1321,20 @@ export default class Turntable extends THREE.Group {
             boundingBox.getSize(boundingBoxSize);
             window.physics.addBox(this, 10, boundingBoxSize.x, boundingBoxSize.y, boundingBoxSize.z, 0, boundingBoxSize.y/2, 0, true);
         }
+    }
+
+    setWireFrame(){
+        this.wireframe = !this.wireframe;
+        this.traverse((child => {
+            if (child.isMesh) {
+                child.material.wireframe = this.wireframe;
+                if (child.name === 'rotaryDiscWithRecord') {
+                    child.material[0].wireframe = this.wireframe;
+                    child.material[1].wireframe = this.wireframe;
+                    child.material[2].wireframe = this.wireframe;
+                }
+            }
+        }));
     }
 
 }

@@ -180,11 +180,19 @@ http://schteppe.github.io/cannon.js/demos/convex.html ("convex on convex").
 **       GUI      **
 ********************
 
+Light Color & Light Intensity
+---
 Das Lichtsetting lässt sich mit dem sich am rechten oberen Rand befindlichen Graphic User Interface einstellen.
 Die Position der Lichtquellen ist dabei fest, je ein Spotlight verfolgt aber einen der Plattenspieler.
 Die Lichtstimmung kann über die Intensität der vorhandenen Lichtquellen sowie die Farbgebung (getrennte RGB-Werte, wobei
 die Werte 0-1 in dem GUI die RGB-Werte von 0-255 abbilden.
 
+General
+---
+Über die Buttons dem Bereich "General" lassen sich die Positionen der Objekte zurücksetzen, geschossene Tennisbälle
+wieder entfernen (z.B. bei Performance-Einbrüchen) und die Objekte als Wireframe anzeigen (entweder alle oder nur den
+nachgebauten Plattenspieler).
+Der Taste "Stop Aud&Anim" stoppt alle laufenden Tweens und pausiert laufende Audiospuren.
 
 
 ########################################################################################################################

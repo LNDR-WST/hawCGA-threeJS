@@ -72,6 +72,11 @@ export default class Physics {
     const body = new CANNON.Body({
       mass: mass
     });
+    // Save initial object position
+    body.resetPosition = new CANNON.Vec3();
+    body.resetRotation = new CANNON.Quaternion();
+    body.resetPosition.copy(object.position);
+    body.resetRotation.copy(object.quaternion);
 
     // Add shape (~collider) to physical body
     const dimension = new CANNON.Vec3(dimX / 2, dimY / 2, dimZ / 2);
