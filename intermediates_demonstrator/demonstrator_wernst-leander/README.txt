@@ -170,7 +170,8 @@ grob gezielt werden kann.
 Die Plattenspieler sowie die Lautsprecher sind dynamische Körper, d.h. sie reagieren auf Kollisionen und werden von
 diesen beeinflusst. Der Schranktisch hingegen ist statisch: Objekte kollidieren mit diesem Körper, der Körper selbst
 reagiert aber nicht auf diese Kollisionen. Hintergrund ist, dass aufeinander gestapelte Boxen mit physikalischen
-Eigenschaften (Cannon.js) sehr unstabil sind und auf Dauer nicht still stehen (somit mit der Zeit herunterfallen).
+Eigenschaften (Cannon.js) sehr unstabil sind und auf Dauer nicht still stehen (somit darauf platzierte Objekte mit der
+Zeit herunterfallen).
 Das Problem lässt sich auch in einem der offiziellen Beispiele nachvollziehen:
 http://schteppe.github.io/cannon.js/demos/convex.html ("convex on convex").
 

@@ -23,12 +23,12 @@ export function keyDownAction(event) {
             window.camera.tween2.start();
             break;
 
-        case 32:
+        case 32: // Space
             if (!window.spaceDown) {
                 window.spaceDown = true;
 
                 const ballRadius = 4;
-                const ball = new THREE.Mesh( geometry, material );
+                const ball = new THREE.Mesh(geometry, material);
 
                 ball.position.set(window.camera.position.x, window.camera.position.y, window.camera.position.z);
                 ball.castShadow = true;

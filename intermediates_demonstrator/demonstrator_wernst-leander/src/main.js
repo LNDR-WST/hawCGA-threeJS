@@ -213,6 +213,8 @@ function main() {
 
     // Controls, Stats, DAT-GUI
     // ------------------------
+    window.balls = [];
+    window.ballBodies = [];
 
     const API_LIGHT = {
         r: spotLight.color.r,
@@ -220,6 +222,19 @@ function main() {
         b: spotLight.color.b,
         intensitySpot: spotLight.intensity,
         intensityPoint: pointLight.intensity
+    };
+
+    const API_GENERAL = {
+        dispose: function (){
+            for (const ballbody of window.physics.ballbodies) {
+                window.physics.world.removeBody(ballbody);
+            }
+            for (const ball of window.physics.balls) {
+                window.scene.remove(ball);
+            }
+            window.physics.ballbodies = [];
+            window.physics.balls = [];
+        }
     };
 
     const gui = new DAT.GUI();
@@ -255,6 +270,10 @@ function main() {
     spotlightGUI.add(API_LIGHT, 'intensityPoint', 0, 1).step(0.05).name("Pointlight").onChange((value) => {
         pointLight.intensity = value;
     });
+
+    const generalGUI = gui.addFolder("General");
+    generalGUI.open();
+    generalGUI.add(API_GENERAL, 'dispose').name('Remove Balls');
 
     const orbitControls = new CONTROLS.OrbitControls(window.camera, window.renderer.domElement);
     orbitControls.target = new THREE.Vector3(0, 0, 0);

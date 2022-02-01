@@ -12,6 +12,9 @@ export default class Physics {
     this.objects = [];
     this.bodies = [];
 
+    this.balls = [];
+    this.ballbodies = [];
+
     if (debugRendering) {
       this.debugger = new CannonDebugger(window.scene, this.world.bodies);
     }
@@ -51,7 +54,10 @@ export default class Physics {
     for (let i = 0; i < this.objects.length; i++) {
       this.objects[i].position.copy(this.bodies[i].position);
       this.objects[i].quaternion.copy(this.bodies[i].quaternion);
-      //console.log(this.bodies[i].velocity);
+    }
+    for (let i = 0; i < this.balls.length; i++) {
+      this.balls[i].position.copy(this.ballbodies[i].position);
+      this.balls[i].quaternion.copy(this.ballbodies[i].quaternion);
     }
 
   }
@@ -154,7 +160,8 @@ export default class Physics {
     const body = new CANNON.Body({
       mass: mass
       });
-    body.sleepSpeedLimit = 2.0;
+
+    body.sleepSpeedLimit = 5.0;
     body.linearDamping = 0.4;
     body.angularDamping = 0.4;
 
@@ -172,6 +179,7 @@ export default class Physics {
     this.world.addBody(body);
 
     // Register object-body-pair
-    this.addPair(object, body);
+    this.balls.push(object);
+    this.ballbodies.push(body);
   }
 }
