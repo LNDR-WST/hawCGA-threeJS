@@ -152,7 +152,7 @@ export default class TurntableFromFile extends THREE.Group {
                 if (child.name === 'arm_group_gltf') {
                      const tweenRollingSide = new TWEEN.Tween(child.rotation)
                         .to(new THREE.Vector3(
-                            child.rotation.x + THREE.MathUtils.degToRad(2.4), child.rotation.y, child.rotation.z + THREE.MathUtils.degToRad(-38)
+                            child.rotation.x + THREE.MathUtils.degToRad(3.65), child.rotation.y, child.rotation.z + THREE.MathUtils.degToRad(-38)
                         ), 35000)
                         .onStart(() => {
                             thisTurntable.speakerL.soundTFF.play();
@@ -169,7 +169,7 @@ export default class TurntableFromFile extends THREE.Group {
                                 child.userData.tweenRollingSide.stop();
                                 thisTurntable.speakerL.cracklingTFF.pause();
                                 thisTurntable.speakerR.cracklingTFF.pause();
-                            } else if (thisTurntable.isRotating && !thisTurntable.speakerL.soundTFF.isPlaying && !thisTurntable.speakerR.soundTFF.isPlaying) {
+                            } else if (thisTurntable.isRotating && !thisTurntable.speakerL.soundTFF.isPlaying && !thisTurntable.speakerR.soundTFF.isPlaying && !thisTurntable.speakerL.cracklingTFF.isPlaying && !thisTurntable.speakerR.cracklingTFF.isPlaying) {
                                 thisTurntable.speakerL.cracklingTFF.play();
                                 thisTurntable.speakerR.cracklingTFF.play();
                                 thisTurntable.speakerL.cracklingTFF.setLoop(true);
@@ -178,7 +178,7 @@ export default class TurntableFromFile extends THREE.Group {
                         })
                         .onComplete(() => {
                             child.userData.armIsOnEnd = true;
-                            if (thisTurntable.isRotating && !thisTurntable.speakerL.cracklingT.isPlaying && !thisTurntable.speakerR.cracklingT.isPlaying) {
+                            if (thisTurntable.isRotating && !thisTurntable.speakerL.cracklingTFF.isPlaying && !thisTurntable.speakerR.cracklingTFF.isPlaying) {
                                 thisTurntable.speakerL.cracklingTFF._progress = 0;
                                 thisTurntable.speakerL.cracklingTFF.play();
                                 thisTurntable.speakerL.cracklingTFF.setLoop(true);

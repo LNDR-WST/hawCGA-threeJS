@@ -220,7 +220,8 @@ Quelle:
 ------
 Sketchfab.com, "MK2 1210 Turntable - Old" by GRIP420
 https://sketchfab.com/3d-models/mk2-1210-turntable-old-201817db6b0d45c29ead1b3b65b33b94
-CC Attribution
+licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
 
 
 ***************************
@@ -232,7 +233,8 @@ Quelle:
 ------
 Sketchfab.com, "Speaker" by futuba@blender
 https://sketchfab.com/3d-models/speaker-998d4fc1513745eaafe8bb3d6e3d1032
-CC Attribution
+licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
 
 
 ***************************
@@ -244,7 +246,8 @@ Quelle:
 ------
 Sketchfab.com, "TV Cabinet Andersen" by 3D Share
 https://sketchfab.com/3d-models/tv-cabinets-andersen-a225d196dd7c4b50a140ecfc22bcb284
-CC Attribution
+licensed under a Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
 
 
 ***************************
@@ -254,7 +257,15 @@ CC Attribution
 
 Quelle:
 ------
-99Sounds.com, "Vinyl Noise SFX" by Chia
+99Sounds.com, "Vinyl Noise SFX" by Chia, Track "Chia vinyl crackle sample 21"
+https://99sounds.org/vinyl-noise-sfx/
+
+
+-crackling2.mp3
+
+Quelle:
+------
+99Sounds.com, "Vinyl Noise SFX" by Chia, Track "Chia vinyl crackle sample 20"
 https://99sounds.org/vinyl-noise-sfx/
 
 
@@ -265,8 +276,20 @@ https://99sounds.org/vinyl-noise-sfx/
 
 Quelle:
 ------
-Pixabay.com, "Best Buddies" by Kinemesis Music
-https://pixabay.com/music/introoutro-best-buddies-12609/
+Free Music Archive, "Feels Good 2 B" by Jason Shaw
+https://freemusicarchive.org/music/Jason_Shaw/Audionautix_Tech_Urban_Dance/TU-FeelsGood2B
+Feels Good 2 B by Jason Shaw is licensed under a Attribution 3.0 United States License.
+https://creativecommons.org/licenses/by/3.0/
+
+
+- music2.mp3
+
+Quelle:
+------
+Free Music Archive, "MARATHON MAN" by Jason Shaw
+https://freemusicarchive.org/music/Jason_Shaw/Audionautix_Acoustic/MARATHON_MAN_________________2-24
+MARATHON MAN by Jason Shaw is licensed under a Attribution 3.0 United States License.
+https://creativecommons.org/licenses/by/3.0/
 
 
 ***************************
@@ -280,6 +303,7 @@ https://pixabay.com/music/introoutro-best-buddies-12609/
 aus den CGA-Vorlesungen
 von Prof. Dr. Jan A. Neuhöfer
 
+
 ***************************
 **       Fremdcode       **
 ***************************
@@ -292,6 +316,7 @@ Stackoverflow.com, Autor: TheJim01
 https://stackoverflow.com/a/42866733 (answered Mar 17 '17 at 20:40; edited Aug 5 '19 at 16:36)
 Abruf: 13.01.2022 13:30 Uhr
 
+
 ***************************
 **      Floor-Textur     **
 ***************************
@@ -299,6 +324,7 @@ Abruf: 13.01.2022 13:30 Uhr
 
 Quelle: Textures.com, "WoodFine0007"
 https://www.textures.com/download/WoodFine0077/122591
+
 
 ***************************
 **  Tennisball-Texturen  **

@@ -118,25 +118,25 @@ function main() {
         cracklingT_R.setVolume(0.5);
     });
 
-    audioLoaderTFF.load( 'src/music/music.mp3', function( buffer ) {
+    audioLoaderTFF.load( 'src/music/music2.mp3', function( buffer ) {
         soundTurntableFF_L.setBuffer( buffer );
         soundTurntableFF_L.setRefDistance(20);
         soundTurntableFF_L.setLoop(false);
         soundTurntableFF_L.setVolume(1);
     });
-    audioLoaderTFF.load( 'src/music/music.mp3', function( buffer ) {
+    audioLoaderTFF.load( 'src/music/music2.mp3', function( buffer ) {
         soundTurntableFF_R.setBuffer( buffer );
         soundTurntableFF_R.setRefDistance(20);
         soundTurntableFF_R.setLoop(false);
         soundTurntableFF_R.setVolume(1);
     });
-    audioLoaderTFF.load( 'src/music/crackling.mp3', function( buffer ) {
+    audioLoaderTFF.load( 'src/music/crackling2.mp3', function( buffer ) {
         cracklingTFF_L.setBuffer( buffer );
         cracklingTFF_L.setRefDistance(20);
         cracklingTFF_L.setLoop(true);
         cracklingTFF_L.setVolume(0.5);
     });
-    audioLoaderTFF.load( 'src/music/crackling.mp3', function( buffer ) {
+    audioLoaderTFF.load( 'src/music/crackling2.mp3', function( buffer ) {
         cracklingTFF_R.setBuffer( buffer );
         cracklingTFF_R.setRefDistance(20);
         cracklingTFF_R.setLoop(true);
@@ -371,12 +371,7 @@ function main() {
         window.scene.traverse((child) => {
             if (child.isMesh) {
                 child.material.wireframe = window.wireframe;
-                if (child.name === 'rotaryDiscWithRecord') {
-                    child.material[0].wireframe = window.wireframe;
-                    child.material[1].wireframe = window.wireframe;
-                    child.material[2].wireframe = window.wireframe;
-                }
-                if (child.name === 'armPlateWeightCylinder') {
+                if (child.name === 'rotaryDiscWithRecord' || child.name === 'armPlateWeightCylinder' || child.name === 'actualPowerSwitch') {
                     child.material[0].wireframe = window.wireframe;
                     child.material[1].wireframe = window.wireframe;
                     child.material[2].wireframe = window.wireframe;

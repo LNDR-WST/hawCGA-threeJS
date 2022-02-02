@@ -111,7 +111,7 @@ export default class Turntable extends THREE.Group {
         vinylMaterial.color.setHex(0xcccccc).convertSRGBToLinear();
         vinylMaterial.map = new THREE.TextureLoader().load('src/images/vinyl_basecolor.jpg');
         vinylMaterial.map.encoding = THREE.sRGBEncoding;
-        vinylMaterial.bumpMap = new THREE.TextureLoader().load('src/images/vinyl_bumpmap.jpg');
+        vinylMaterial.bumpMap = new THREE.TextureLoader().load('src/images/vinyl_normalmap.jpg');
         vinylMaterial.bumpScale = 0.2;
 
         const emissivePowerMaterial = new THREE.MeshStandardMaterial({
@@ -364,7 +364,7 @@ export default class Turntable extends THREE.Group {
 
         // Switch
         const actualSwitchGeometry = new THREE.CylinderBufferGeometry(1.9, 1.9, 0.5, 16);
-        const actualSwitch = new THREE.Mesh(actualSwitchGeometry, tabletopPowerMaterial);
+        const actualSwitch = new THREE.Mesh(actualSwitchGeometry, [tabletopMaterial, tabletopPowerMaterial, tabletopMaterial]);
         actualSwitch.position.set(0, 1.75 + 0.5/2, 0);
         actualSwitch.name = 'actualPowerSwitch';
         actualSwitch.userData = {
@@ -1329,12 +1329,7 @@ export default class Turntable extends THREE.Group {
         this.traverse((child => {
             if (child.isMesh) {
                 child.material.wireframe = this.wireframe;
-                if (child.name === 'rotaryDiscWithRecord') {
-                    child.material[0].wireframe = this.wireframe;
-                    child.material[1].wireframe = this.wireframe;
-                    child.material[2].wireframe = this.wireframe;
-                }
-                if (child.name === 'armPlateWeightCylinder') {
+                if (child.name === 'rotaryDiscWithRecord' || child.name === 'armPlateWeightCylinder' || child.name === 'actualPowerSwitch') {
                     child.material[0].wireframe = this.wireframe;
                     child.material[1].wireframe = this.wireframe;
                     child.material[2].wireframe = this.wireframe;
