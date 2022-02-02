@@ -93,7 +93,7 @@ liegt. "demonstrator_wernst-leander" beinhaltet somit dieselbe Ordnerstruktur wi
 Benötigte Ordnerstruktur:
 
 ├───uebergeordneter_ordner
-│   └───demonstrator_wernst-leander             <------ !
+│   └───demonstrator_wernst-leander             <------ index.html
 │       └───src
 │           ├───eventfunctions
 │           ├───images
@@ -109,9 +109,15 @@ Benötigte Ordnerstruktur:
     ├───three-csg-2020
     └───tween.js-18.6.4
 
-Die in dem Ordner "src" befindliche Datei "index.html" muss von einem Server angefordert werden, der diese dann an den
-Client sendet. Wie in der Vorlesung wurde dies zur Entwicklung mit der lokalen Serverumgebung realisiert, die die
-integrierte Entwicklungsumgebung "WebStorm"  (JetBrains) von Haus aus bereitstellt.
+Die in dem Ordner "demonstrator_wernst-leander" befindliche Datei "index.html" muss aufgrund der "same-origin policy"
+(ein im Browser implementiertes Sicherheitsmodell) von einem Webserver angefordert werden, der diese dann an den Client
+(Browser) sendet. Ein einfaches, lokales Öffnen der "index.html" mit dem Browser funktioniert ohne das Anpassen der
+Sicherheitseinstellungen im Browser nicht. Bei dem Server kann es sich um einen lokalen Webserver handeln. Während der
+Entwicklung des Projekts wurde die Funktion der integrierten Entwicklungsumgebung "WebStorm" (JetBrains) dafür
+verwendet.
+Weitere Informationen dazu unter:
+https://threejs.org/docs/#manual/en/introduction/How-to-run-things-locally
+
 
 ########################################################################################################################
 ## 3. FEATURES
@@ -189,7 +195,7 @@ die Werte 0-1 in dem GUI die RGB-Werte von 0-255 abbilden.
 
 General
 ---
-Über die Buttons dem Bereich "General" lassen sich die Positionen der Objekte zurücksetzen, geschossene Tennisbälle
+Über die Buttons im Bereich "General" lassen sich die Positionen der Objekte zurücksetzen, geschossene Tennisbälle
 wieder entfernen (z.B. bei Performance-Einbrüchen) und die Objekte als Wireframe anzeigen (entweder alle oder nur den
 nachgebauten Plattenspieler).
 Der Taste "Stop Aud&Anim" stoppt alle laufenden Tweens und pausiert laufende Audiospuren.

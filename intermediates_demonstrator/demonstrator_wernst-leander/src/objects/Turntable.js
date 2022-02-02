@@ -653,6 +653,7 @@ export default class Turntable extends THREE.Group {
             const armPlate2 = new THREE.Mesh(armPlate2Geometry, corpusMaterial);
             const armPlateWeightCylinderGeo = new THREE.CylinderGeometry(1.5, 1.5, 0.72, 16).translate(5.4, 2.285, 0);
             const armPlateWeightCylinder = new THREE.Mesh(armPlateWeightCylinderGeo, [corpusMaterial, tabletopWeightAdjMaterial, corpusMaterial]);
+            armPlateWeightCylinder.name = 'armPlateWeightCylinder';
             basePlate.add(armPlate2, armPlateWeightCylinder);
 
             const armPlate3Base = new THREE.CylinderGeometry(2.3, 2.3, 0.3, 32).translate(0, 2.105 + 0.3, 0);
@@ -1329,6 +1330,11 @@ export default class Turntable extends THREE.Group {
             if (child.isMesh) {
                 child.material.wireframe = this.wireframe;
                 if (child.name === 'rotaryDiscWithRecord') {
+                    child.material[0].wireframe = this.wireframe;
+                    child.material[1].wireframe = this.wireframe;
+                    child.material[2].wireframe = this.wireframe;
+                }
+                if (child.name === 'armPlateWeightCylinder') {
                     child.material[0].wireframe = this.wireframe;
                     child.material[1].wireframe = this.wireframe;
                     child.material[2].wireframe = this.wireframe;

@@ -376,8 +376,13 @@ function main() {
                     child.material[1].wireframe = window.wireframe;
                     child.material[2].wireframe = window.wireframe;
                 }
+                if (child.name === 'armPlateWeightCylinder') {
+                    child.material[0].wireframe = window.wireframe;
+                    child.material[1].wireframe = window.wireframe;
+                    child.material[2].wireframe = window.wireframe;
+                }
             }
-        })
+        });
     }
 
     mainLoop();
